@@ -203,7 +203,7 @@ export default function NewPostPage() {
           <div className="flex items-center gap-4">
             <Link href="/admin" className="flex items-center gap-3 group">
               <div className="h-10 w-10 rounded-full bg-[#18181B] text-white grid place-items-center font-bold group-hover:scale-110 transition-transform duration-200">
-                B
+                Tim
               </div>
               <span className="text-xl font-semibold text-[#09090B]">新增文章</span>
             </Link>

@@ -74,7 +74,7 @@ export default function LoginPage() {
           <div className="text-center mb-8">
             <Link href="/" className="inline-block">
               <div className="h-16 w-16 rounded-full bg-[#18181B] text-white grid place-items-center font-bold text-2xl mx-auto mb-4 hover:scale-110 transition-transform duration-200">
-                B
+                Tim
               </div>
             </Link>
             <h1 className="text-2xl font-black text-[#09090B]">
