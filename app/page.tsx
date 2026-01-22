@@ -116,7 +116,7 @@ export default async function Home() {
             <div className="relative w-[340px] sm:w-[420px] aspect-[4/5] rounded-3xl bg-gradient-to-br from-[#18181B] to-[#3F3F46] shadow-2xl overflow-hidden group hover:scale-[1.02] transition-transform duration-300">
               {/* 之後換成自己的照片 */}
                 <img
-                  src="/personal_photo.jpg"
+                  src="/Personal_photo.jpg"
                   alt="Ding-Yuan Chen"
                   className="w-full h-full object-cover"
                 />
