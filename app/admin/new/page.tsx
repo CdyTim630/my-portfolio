@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 export default function NewPostPage() {
   const router = useRouter();
@@ -48,13 +50,26 @@ export default function NewPostPage() {
   const uploadImage = async (file: File): Promise<string | null> => {
     try {
       setIsUploading(true);
+      
+      // 檢查檔案
+      console.log('準備上傳檔案:', file.name, file.size, file.type);
+      
+      if (file.size === 0) {
+        alert('檔案大小為 0，請重新選擇圖片');
+        return null;
+      }
+      
       const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
+      const fileName = `${crypto.randomUUID()}.${fileExt}`;
       const filePath = `images/${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
+      const { data, error: uploadError } = await supabase.storage
         .from('blog-images')
-        .upload(filePath, file);
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false,
+          contentType: file.type,
+        });
 
       if (uploadError) {
         console.error('Upload error:', uploadError);
@@ -67,11 +82,12 @@ export default function NewPostPage() {
       }
 
       // 取得公開 URL
-      const { data } = supabase.storage
+      const { data: publicData } = supabase.storage
         .from('blog-images')
-        .getPublicUrl(filePath);
+        .getPublicUrl(data.path);
 
-      return data.publicUrl;
+      console.log('上傳成功，URL:', publicData.publicUrl);
+      return publicData.publicUrl;
     } catch (err) {
       console.error('Error uploading image:', err);
       alert('圖片上傳發生錯誤');
@@ -534,24 +550,37 @@ export default function NewPostPage() {
             <h2 className="text-xl font-bold text-[#09090B] mb-6">預覽</h2>
 
             {form.title || form.content ? (
-              <div className="prose prose-slate max-w-none">
+              <div className="prose prose-lg prose-slate max-w-none
+                prose-headings:font-black prose-headings:text-[#09090B] prose-headings:tracking-tight
+                prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-3
+                prose-h3:text-xl prose-h3:mt-6 prose-h3:mb-2
+                prose-p:text-[#3F3F46] prose-p:leading-relaxed
+                prose-a:text-[#2563EB] prose-a:no-underline hover:prose-a:underline
+                prose-strong:text-[#09090B] prose-strong:font-semibold
+                prose-ul:text-[#3F3F46] prose-ol:text-[#3F3F46]
+                prose-li:marker:text-[#2563EB]
+                prose-code:text-[#09090B] prose-code:bg-[#F4F4F5] prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:text-sm prose-code:font-normal prose-code:before:content-none prose-code:after:content-none
+                prose-pre:bg-[#18181B] prose-pre:text-white prose-pre:rounded-xl
+                prose-blockquote:border-l-[#2563EB] prose-blockquote:bg-[#F4F4F5] prose-blockquote:py-1 prose-blockquote:rounded-r-xl
+                prose-img:rounded-xl prose-img:shadow-lg prose-img:my-6
+              ">
                 {form.category && (
-                  <span className="inline-block px-3 py-1 rounded-lg bg-[#2563EB]/10 text-[#2563EB] text-sm font-medium mb-4">
+                  <span className="inline-block px-3 py-1 rounded-lg bg-[#2563EB]/10 text-[#2563EB] text-sm font-medium mb-4 not-prose">
                     {form.category}
                   </span>
                 )}
                 {form.title && (
-                  <h1 className="text-3xl font-black text-[#09090B] tracking-tight mb-4">
+                  <h1 className="text-3xl font-black text-[#09090B] tracking-tight mb-4 not-prose">
                     {form.title}
                   </h1>
                 )}
                 {form.excerpt && (
-                  <p className="text-lg text-[#3F3F46] mb-6 pb-6 border-b border-[#18181B]/10">
+                  <p className="text-lg text-[#3F3F46] mb-6 pb-6 border-b border-[#18181B]/10 not-prose">
                     {form.excerpt}
                   </p>
                 )}
                 {form.spotifyTrackId && (
-                  <div className="mb-6 p-4 rounded-xl bg-[#1DB954]/10 border border-[#1DB954]/20">
+                  <div className="mb-6 p-4 rounded-xl bg-[#1DB954]/10 border border-[#1DB954]/20 not-prose">
                     <p className="text-sm text-[#1DB954] flex items-center gap-2">
                       <svg
                         className="w-5 h-5"
@@ -564,12 +593,11 @@ export default function NewPostPage() {
                     </p>
                   </div>
                 )}
-                <div
-                  className="text-[#3F3F46] leading-relaxed whitespace-pre-wrap"
-                  style={{ fontFamily: 'inherit' }}
-                >
-                  {form.content}
-                </div>
+                {form.content && (
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {form.content}
+                  </ReactMarkdown>
+                )}
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center h-64 text-[#A1A1AA]">
