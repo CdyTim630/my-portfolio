@@ -127,6 +127,41 @@ export default function NewPostPage() {
     }
   };
 
+  // 處理剪貼板貼上圖片
+  const handlePaste = async (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (item.type.indexOf('image') !== -1) {
+        e.preventDefault(); // 防止預設貼上行為
+        
+        const file = item.getAsFile();
+        if (!file) continue;
+
+        // 產生一個有意義的檔名
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const newFile = new File([file], `pasted-image-${timestamp}.png`, {
+          type: file.type,
+        });
+
+        const url = await uploadImage(newFile);
+        if (url) {
+          const textarea = e.target as HTMLTextAreaElement;
+          const start = textarea.selectionStart;
+          const end = textarea.selectionEnd;
+          const newContent =
+            form.content.substring(0, start) +
+            `\n![Image](${url})\n` +
+            form.content.substring(end);
+          setForm({ ...form, content: newContent });
+        }
+        break; // 只處理第一張圖片
+      }
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent, publish: boolean = false) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -517,7 +552,8 @@ export default function NewPostPage() {
                   id="content"
                   value={form.content}
                   onChange={(e) => setForm({ ...form, content: e.target.value })}
-                  placeholder="使用 Markdown 撰寫文章內容..."
+                  onPaste={handlePaste}
+                  placeholder="使用 Markdown 撰寫文章內容，可直接貼上剪貼板中的圖片..."
                   rows={15}
                   className="w-full px-4 py-3 rounded-b-xl border border-[#18181B]/10 focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20 outline-none transition-all duration-200 resize-none font-mono text-sm"
                   required
