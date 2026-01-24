@@ -17,5 +17,10 @@ export default async function AdminPage() {
     .select("*")
     .order("created_at", { ascending: false });
 
-  return <AdminDashboard user={data.user} posts={posts || []} />;
+  // 取得留言總數
+  const { count: commentsCount } = await supabase
+    .from("comments")
+    .select("*", { count: "exact", head: true });
+
+  return <AdminDashboard user={data.user} posts={posts || []} commentsCount={commentsCount || 0} />;
 }

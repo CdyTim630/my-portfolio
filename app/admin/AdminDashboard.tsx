@@ -19,9 +19,10 @@ interface Post {
 interface AdminDashboardProps {
   user: User;
   posts: Post[];
+  commentsCount?: number;
 }
 
-export default function AdminDashboard({ user, posts: initialPosts }: AdminDashboardProps) {
+export default function AdminDashboard({ user, posts: initialPosts, commentsCount = 0 }: AdminDashboardProps) {
   const supabase = createClient();
   const [posts, setPosts] = useState(initialPosts);
 
@@ -87,7 +88,7 @@ export default function AdminDashboard({ user, posts: initialPosts }: AdminDashb
         </header>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-6 mb-10">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10">
           <div className="p-6 rounded-2xl bg-white border border-[#18181B]/10 shadow-sm">
             <div className="text-3xl font-black text-[#09090B]">{posts.length}</div>
             <div className="mt-1 text-sm text-[#71717A]">總文章數</div>
@@ -104,12 +105,33 @@ export default function AdminDashboard({ user, posts: initialPosts }: AdminDashb
             </div>
             <div className="mt-1 text-sm text-[#71717A]">草稿</div>
           </div>
+          <Link 
+            href="/admin/comments"
+            className="p-6 rounded-2xl bg-white border border-[#18181B]/10 shadow-sm hover:border-[#10B981] hover:shadow-md transition-all duration-200 group"
+          >
+            <div className="text-3xl font-black text-[#10B981] group-hover:scale-105 transition-transform">{commentsCount}</div>
+            <div className="mt-1 text-sm text-[#71717A] flex items-center gap-1">
+              留言數
+              <svg className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
+          </Link>
         </div>
 
         {/* Actions */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-[#09090B]">文章管理</h2>
           <div className="flex items-center gap-3">
+            <Link
+              href="/admin/comments"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#10B981]/10 text-[#10B981] font-semibold hover:bg-[#10B981]/20 hover:-translate-y-0.5 transition-all duration-200"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+              </svg>
+              留言管理
+            </Link>
             <Link
               href="/admin/categories"
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#3F3F46] text-white font-semibold hover:bg-[#18181B] hover:shadow-lg hover:shadow-gray-500/25 hover:-translate-y-0.5 transition-all duration-200"

@@ -9,7 +9,7 @@ import remarkGfm from 'remark-gfm';
 
 // 計算閱讀時間
 function calculateReadTime(content: string): string {
-  const wordsPerMinute = 200;
+  const wordsPerMinute = 40;
   const wordCount = content.split(/\s+/).length;
   const minutes = Math.ceil(wordCount / wordsPerMinute);
   return `${minutes} min read`;
