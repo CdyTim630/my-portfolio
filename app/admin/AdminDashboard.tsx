@@ -119,10 +119,40 @@ export default function AdminDashboard({ user, posts: initialPosts, commentsCoun
           </Link>
         </div>
 
+        {/* Analytics Entry Banner */}
+        <Link
+          href="/admin/analytics"
+          className="flex items-center justify-between p-5 rounded-2xl mb-8 bg-gradient-to-r from-[#2563EB] to-[#7C3AED] text-white hover:shadow-xl hover:shadow-blue-500/25 hover:-translate-y-0.5 transition-all duration-200 group"
+        >
+          <div className="flex items-center gap-4">
+            <div className="h-10 w-10 rounded-xl bg-white/20 grid place-items-center">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+            </div>
+            <div>
+              <div className="font-semibold text-base">網站分析</div>
+              <div className="text-sm text-white/70">查看瀏覽趨勢、熱門頁面、流量來源與裝置分佈</div>
+            </div>
+          </div>
+          <svg className="w-5 h-5 text-white/70 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </Link>
+
         {/* Actions */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-[#09090B]">文章管理</h2>
           <div className="flex items-center gap-3">
+            <Link
+              href="/admin/analytics"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#2563EB]/10 text-[#2563EB] font-semibold hover:bg-[#2563EB]/20 hover:-translate-y-0.5 transition-all duration-200"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+              網站分析
+            </Link>
             <Link
               href="/admin/comments"
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#10B981]/10 text-[#10B981] font-semibold hover:bg-[#10B981]/20 hover:-translate-y-0.5 transition-all duration-200"

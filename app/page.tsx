@@ -2,6 +2,7 @@ import Navbar from "@/components/Navbar";
 import Link from "next/link";
 import { experiences } from "@/lib/experience-data";
 import { createClient } from "@/lib/supabase/server";
+import MouseGlow from "@/components/MouseGlow";
 
 // 計算閱讀時間（支援中文和圖片）
 function calculateReadTime(content: string): string {
@@ -45,8 +46,9 @@ export default async function Home() {
     .limit(3);
 
   return (
-    <main className="min-h-screen bg-[#FAFAFA]">
-      <div className="mx-auto max-w-6xl px-6 py-10">
+    <main className="relative min-h-screen bg-[#FAFAFA]">
+      <MouseGlow />
+      <div className="relative z-10 mx-auto max-w-6xl px-6 py-10">
         <Navbar />
 
         {/* Hero Section */}
