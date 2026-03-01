@@ -1,6 +1,5 @@
 import Navbar from "@/components/Navbar";
 import Link from "next/link";
-import { experiences } from "@/lib/experience-data";
 import { createClient } from "@/lib/supabase/server";
 import MouseGlow from "@/components/MouseGlow";
 
@@ -44,6 +43,12 @@ export default async function Home() {
     .eq("published", true)
     .order("created_at", { ascending: false })
     .limit(3);
+
+  // 從 Supabase 取得 experiences
+  const { data: experiences } = await supabase
+    .from("experiences")
+    .select("*")
+    .order("sort_order", { ascending: true });
 
   return (
     <main className="relative min-h-screen bg-[#FAFAFA]">
@@ -183,7 +188,7 @@ export default async function Home() {
             <div className="flex-1 h-px bg-gradient-to-r from-[#18181B]/20 to-transparent"></div>
           </div>
           <div className="space-y-6">
-            {experiences.map((exp, index) => (
+            {(experiences || []).map((exp) => (
               <div 
                 key={exp.id}
                 className="group p-6 rounded-2xl bg-white border border-[#18181B]/10 hover:border-[#2563EB]/50 hover:shadow-lg hover:shadow-blue-500/5 transition-all duration-300 cursor-default"
@@ -201,7 +206,7 @@ export default async function Home() {
                 </div>
                 <p className="text-[#3F3F46] leading-relaxed mb-4">{exp.description}</p>
                 <div className="flex flex-wrap gap-2">
-                  {exp.skills.map((skill) => (
+                  {exp.skills.map((skill: string) => (
                     <span 
                       key={skill}
                       className="px-3 py-1 rounded-lg bg-[#2563EB]/10 text-[#2563EB] text-sm font-medium"
