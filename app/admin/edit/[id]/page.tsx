@@ -394,7 +394,7 @@ export default function EditPostPage() {
 
   if (isLoading) {
     return (
-      <main className="min-h-screen bg-[#FAFAFA] flex items-center justify-center">
+      <main className="min-h-screen bg-transparent flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-[#2563EB] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-[#71717A]">載入中...</p>
@@ -404,7 +404,7 @@ export default function EditPostPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#FAFAFA]">
+    <main className="min-h-screen bg-transparent">
       <div className="mx-auto max-w-7xl px-6 py-6">
         {/* Header */}
         <header className="flex items-center justify-between mb-6">

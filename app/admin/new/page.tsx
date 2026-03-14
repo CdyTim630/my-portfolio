@@ -354,7 +354,7 @@ export default function NewPostPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#FAFAFA]">
+    <main className="min-h-screen bg-transparent">
       <div className="mx-auto max-w-7xl px-6 py-6">
         {/* Header */}
         <header className="flex items-center justify-between mb-6">

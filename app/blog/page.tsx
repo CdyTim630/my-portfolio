@@ -2,9 +2,11 @@ import Navbar from "@/components/Navbar";
 import BlogList from "@/components/BlogList";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { getResumeUrl } from "@/lib/site-settings";
 
 export default async function BlogPage() {
   const supabase = await createClient();
+  const resumeUrl = await getResumeUrl();
   
   // 從 Supabase 取得已發布的文章
   const { data: posts } = await supabase
@@ -22,9 +24,9 @@ export default async function BlogPage() {
   const categoryList = categories || [];
 
   return (
-    <main className="min-h-screen bg-[#FAFAFA]">
+    <main className="min-h-screen bg-transparent">
       <div className="mx-auto max-w-6xl px-6 py-10">
-        <Navbar />
+        <Navbar resumeUrl={resumeUrl} />
 
         {/* Header */}
         <section className="mt-16 mb-12">

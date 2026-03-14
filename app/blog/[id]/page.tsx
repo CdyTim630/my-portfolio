@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import SpotifyEmbed from "@/components/SpotifyEmbed";
 import ShareAndComments from "@/components/ShareAndComments";
 import { createClient } from "@/lib/supabase/server";
+import { getResumeUrl } from "@/lib/site-settings";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
@@ -44,6 +45,7 @@ export default async function BlogPostPage({
 }) {
   const { id } = await params;
   const supabase = await createClient();
+  const resumeUrl = await getResumeUrl();
   
   // 從 Supabase 取得單篇文章
   const { data: post } = await supabase
@@ -58,9 +60,9 @@ export default async function BlogPostPage({
   }
 
   return (
-    <main className="min-h-screen bg-[#FAFAFA]">
+    <main className="min-h-screen bg-transparent">
       <div className="mx-auto max-w-4xl px-6 py-10">
-        <Navbar />
+        <Navbar resumeUrl={resumeUrl} />
 
         {/* Back Navigation */}
         <div className="mt-12 mb-8">

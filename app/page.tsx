@@ -1,7 +1,8 @@
 import Navbar from "@/components/Navbar";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import MouseGlow from "@/components/MouseGlow";
+import HomeThemeSwitcher from "@/components/HomeThemeSwitcher";
+import { getResumeUrl } from "@/lib/site-settings";
 
 // 計算閱讀時間（支援中文和圖片）
 function calculateReadTime(content: string): string {
@@ -35,6 +36,7 @@ function calculateReadTime(content: string): string {
 
 export default async function Home() {
   const supabase = await createClient();
+  const resumeUrl = await getResumeUrl();
   
   // 從 Supabase 取得最新 3 篇已發布文章
   const { data: latestPosts } = await supabase
@@ -51,28 +53,30 @@ export default async function Home() {
     .order("sort_order", { ascending: true });
 
   return (
-    <main className="relative min-h-screen bg-[#FAFAFA]">
-      <MouseGlow />
+    <HomeThemeSwitcher>
+      <main className="relative min-h-screen bg-transparent text-[var(--home-text)] transition-colors duration-500">
+
       <div className="relative z-10 mx-auto max-w-6xl px-6 py-10">
-        <Navbar />
+        <Navbar resumeUrl={resumeUrl} />
+
 
         {/* Hero Section */}
         <section className="mt-20 grid items-center gap-16 md:grid-cols-2">
           {/* Left */}
           <div>
-            <p className="text-[#3F3F46] font-medium tracking-wide uppercase text-sm animate-fade-in">Hello, I&apos;m</p>
-            <h1 className="mt-4 text-6xl md:text-7xl lg:text-8xl font-black leading-[0.9] text-[#09090B] tracking-tight">
+            <p className="text-[var(--home-text)] font-medium tracking-wide uppercase text-sm animate-fade-in">Hello, I&apos;m</p>
+            <h1 className="mt-4 text-6xl md:text-7xl lg:text-8xl font-black leading-[0.9] text-[var(--home-text-strong)] tracking-tight">
               Ding-Yuan<br/>Chen
             </h1>
-            <p className="mt-8 max-w-xl text-[#3F3F46] leading-relaxed text-lg">
+            <p className="mt-8 max-w-xl text-[var(--home-text)] leading-relaxed text-lg">
               Student majoring in{" "}
-              <span className="font-semibold text-[#09090B]">Information Management</span> at{" "}
-              <span className="font-semibold text-[#09090B]">National Taiwan University</span>.
+              <span className="font-semibold text-[var(--home-text-strong)]">Information Management</span> at{" "}
+              <span className="font-semibold text-[var(--home-text-strong)]">National Taiwan University</span>.
             </p>
 
             <div className="mt-10 flex flex-wrap gap-4">
               <a
-                href="https://drive.google.com/file/d/1ydMe7BYLDkXabV9UNFn5D9Nby9zaH6HA/view"
+                href={resumeUrl}
                 download
                 className="inline-flex items-center gap-2 rounded-xl bg-[#2563EB] px-6 py-3.5 text-sm font-semibold text-white shadow-sm hover:bg-[#1d4ed8] hover:shadow-lg hover:shadow-blue-500/25 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer group"
               >
@@ -83,7 +87,7 @@ export default async function Home() {
               </a>
               <a
                 href="#contact"
-                className="inline-flex items-center gap-2 rounded-xl border-2 border-[#18181B] px-6 py-3.5 text-sm font-semibold text-[#18181B] hover:bg-[#18181B] hover:text-white hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer"
+                className="inline-flex items-center gap-2 rounded-xl border-2 border-[var(--home-text-strong)] px-6 py-3.5 text-sm font-semibold text-[var(--home-text-strong)] hover:bg-[var(--home-text-strong)] hover:text-[var(--home-bg)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer"
               >
                 Say Hello!
               </a>
@@ -91,13 +95,13 @@ export default async function Home() {
 
             {/* Social Links */}
             <div className="mt-10 flex items-center gap-4">
-              <span className="text-sm font-medium text-[#3F3F46]">Connect with me:</span>
+              <span className="text-sm font-medium text-[var(--home-text)]">Connect with me:</span>
               <div className="flex gap-3">
                 <a
                   href="https://github.com/CdyTim630"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group p-3 rounded-xl bg-white border border-[#18181B]/10 text-[#3F3F46] hover:border-[#09090B] hover:bg-[#09090B] hover:text-white hover:-translate-y-1 hover:shadow-lg transition-all duration-200 cursor-pointer"
+                  className="group p-3 rounded-xl bg-[var(--home-surface)] border border-[var(--home-border)] text-[var(--home-text)] hover:border-[var(--home-text-strong)] hover:bg-[var(--home-text-strong)] hover:text-[var(--home-bg)] hover:-translate-y-1 hover:shadow-lg transition-all duration-200 cursor-pointer"
                   aria-label="GitHub"
                 >
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -106,7 +110,7 @@ export default async function Home() {
                 </a>
                 <a
                   href="mailto:b13705020@ntu.edu.tw"
-                  className="group p-3 rounded-xl bg-white border border-[#18181B]/10 text-[#3F3F46] hover:border-[#2563EB] hover:bg-[#2563EB] hover:text-white hover:-translate-y-1 hover:shadow-lg transition-all duration-200 cursor-pointer"
+                  className="group p-3 rounded-xl bg-[var(--home-surface)] border border-[var(--home-border)] text-[var(--home-text)] hover:border-[#2563EB] hover:bg-[#2563EB] hover:text-white hover:-translate-y-1 hover:shadow-lg transition-all duration-200 cursor-pointer"
                   aria-label="Email"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -117,7 +121,7 @@ export default async function Home() {
                   href="https://www.linkedin.com/in/cdytim"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group p-3 rounded-xl bg-white border border-[#18181B]/10 text-[#3F3F46] hover:border-[#0077B5] hover:bg-[#0077B5] hover:text-white hover:-translate-y-1 hover:shadow-lg transition-all duration-200 cursor-pointer"
+                  className="group p-3 rounded-xl bg-[var(--home-surface)] border border-[var(--home-border)] text-[var(--home-text)] hover:border-[#0077B5] hover:bg-[#0077B5] hover:text-white hover:-translate-y-1 hover:shadow-lg transition-all duration-200 cursor-pointer"
                   aria-label="LinkedIn"
                 >
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -128,7 +132,7 @@ export default async function Home() {
                   href="https://instagram.com/cdy.tim"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group p-3 rounded-xl bg-white border border-[#18181B]/10 text-[#3F3F46] hover:border-[#E4405F] hover:bg-gradient-to-br hover:from-[#F58529] hover:via-[#DD2A7B] hover:to-[#8134AF] hover:text-white hover:-translate-y-1 hover:shadow-lg transition-all duration-200 cursor-pointer"
+                  className="group p-3 rounded-xl bg-[var(--home-surface)] border border-[var(--home-border)] text-[var(--home-text)] hover:border-[#E4405F] hover:bg-gradient-to-br hover:from-[#F58529] hover:via-[#DD2A7B] hover:to-[#8134AF] hover:text-white hover:-translate-y-1 hover:shadow-lg transition-all duration-200 cursor-pointer"
                   aria-label="Instagram"
                 >
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -142,7 +146,7 @@ export default async function Home() {
 
           {/* Right */}
           <div className="flex justify-center md:justify-end">
-            <div className="relative w-[340px] sm:w-[420px] aspect-[4/5] rounded-3xl bg-gradient-to-br from-[#18181B] to-[#3F3F46] shadow-2xl overflow-hidden group hover:scale-[1.02] transition-transform duration-300">
+            <div className="relative w-[340px] sm:w-[420px] aspect-[4/5] rounded-3xl bg-gradient-to-br from-[var(--home-photo-from)] to-[var(--home-photo-to)] shadow-2xl overflow-hidden group hover:scale-[1.02] transition-transform duration-300">
               {/* 之後換成自己的照片 */}
                 <img
                   src="/Personal_photo.jpg"
@@ -156,11 +160,11 @@ export default async function Home() {
         {/* About Section */}
         <section id="about" className="mt-32 scroll-mt-24">
           <div className="flex items-center gap-4 mb-12">
-            <h2 className="text-4xl font-black text-[#09090B]">About Me</h2>
-            <div className="flex-1 h-px bg-gradient-to-r from-[#18181B]/20 to-transparent"></div>
+            <h2 className="text-4xl font-black text-[var(--home-text-strong)]">About Me</h2>
+            <div className="flex-1 h-px bg-gradient-to-r from-[var(--home-divider)] to-transparent"></div>
           </div>
           <div className="grid md:grid-cols-2 gap-12">
-            <div className="space-y-6 text-[#3F3F46] leading-relaxed text-lg">
+            <div className="space-y-6 text-[var(--home-text)] leading-relaxed text-lg">
               <p>
                 I&apos;m a B.B.A. student in Information Management at National Taiwan University, passionate about full-stack web development and coding.
               </p>
@@ -172,7 +176,7 @@ export default async function Home() {
               {["Web Development", "System Administration", "Coding"].map((skill) => (
                 <div 
                   key={skill}
-                  className="px-6 py-5 rounded-xl bg-white border border-[#18181B]/10 text-center font-semibold text-[#09090B] hover:border-[#2563EB] hover:shadow-md hover:-translate-y-1 transition-all duration-200 cursor-default"
+                  className="px-6 py-5 rounded-xl bg-[var(--home-surface)] border border-[var(--home-border)] text-center font-semibold text-[var(--home-text-strong)] hover:border-[#2563EB] hover:shadow-md hover:-translate-y-1 transition-all duration-200 cursor-default"
                 >
                   {skill}
                 </div>
@@ -184,27 +188,27 @@ export default async function Home() {
         {/* Experience Section */}
         <section id="experience" className="mt-32 scroll-mt-24">
           <div className="flex items-center gap-4 mb-12">
-            <h2 className="text-4xl font-black text-[#09090B]">Experience</h2>
-            <div className="flex-1 h-px bg-gradient-to-r from-[#18181B]/20 to-transparent"></div>
+            <h2 className="text-4xl font-black text-[var(--home-text-strong)]">Experience</h2>
+            <div className="flex-1 h-px bg-gradient-to-r from-[var(--home-divider)] to-transparent"></div>
           </div>
           <div className="space-y-6">
             {(experiences || []).map((exp) => (
               <div 
                 key={exp.id}
-                className="group p-6 rounded-2xl bg-white border border-[#18181B]/10 hover:border-[#2563EB]/50 hover:shadow-lg hover:shadow-blue-500/5 transition-all duration-300 cursor-default"
+                className="group p-6 rounded-2xl bg-[var(--home-surface)] border border-[var(--home-border)] hover:border-[#2563EB]/50 hover:shadow-lg hover:shadow-blue-500/5 transition-all duration-300 cursor-default"
               >
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
                   <div>
-                    <h3 className="text-xl font-bold text-[#09090B] group-hover:text-[#2563EB] transition-colors duration-200">
+                    <h3 className="text-xl font-bold text-[var(--home-text-strong)] group-hover:text-[#2563EB] transition-colors duration-200">
                       {exp.title}
                     </h3>
-                    <p className="text-[#3F3F46] font-medium">{exp.company}</p>
+                    <p className="text-[var(--home-text)] font-medium">{exp.company}</p>
                   </div>
-                  <span className="inline-flex items-center px-3 py-1 rounded-full bg-[#F4F4F5] text-sm font-medium text-[#3F3F46] w-fit">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full bg-[var(--home-surface-muted)] text-sm font-medium text-[var(--home-text)] w-fit">
                     {exp.period}
                   </span>
                 </div>
-                <p className="text-[#3F3F46] leading-relaxed mb-4">{exp.description}</p>
+                <p className="text-[var(--home-text)] leading-relaxed mb-4">{exp.description}</p>
                 <div className="flex flex-wrap gap-2">
                   {exp.skills.map((skill: string) => (
                     <span 
@@ -224,8 +228,8 @@ export default async function Home() {
         <section id="blog" className="mt-32 scroll-mt-24">
           <div className="flex items-center justify-between mb-12">
             <div className="flex items-center gap-4">
-              <h2 className="text-4xl font-black text-[#09090B]">Latest Articles</h2>
-              <div className="flex-1 h-px bg-gradient-to-r from-[#18181B]/20 to-transparent hidden md:block w-32"></div>
+              <h2 className="text-4xl font-black text-[var(--home-text-strong)]">Latest Articles</h2>
+              <div className="flex-1 h-px bg-gradient-to-r from-[var(--home-divider)] to-transparent hidden md:block w-32"></div>
             </div>
             <Link 
               href="/blog" 
@@ -242,20 +246,20 @@ export default async function Home() {
               <Link 
                 key={post.id}
                 href={`/blog/${post.id}`}
-                className="group p-6 rounded-2xl bg-white border border-[#18181B]/10 hover:border-[#2563EB]/50 hover:shadow-xl hover:-translate-y-2 transition-all duration-300"
+                className="group p-6 rounded-2xl bg-[var(--home-surface)] border border-[var(--home-border)] hover:border-[#2563EB]/50 hover:shadow-xl hover:-translate-y-2 transition-all duration-300"
               >
                 <div className="flex items-center gap-2 mb-4">
-                  <span className="px-2 py-1 rounded-md bg-[#F4F4F5] text-xs font-medium text-[#3F3F46]">
+                  <span className="px-2 py-1 rounded-md bg-[var(--home-surface-muted)] text-xs font-medium text-[var(--home-text)]">
                     {post.category}
                   </span>
-                  <span className="text-xs text-[#71717A]">{calculateReadTime(post.content)}</span>
+                  <span className="text-xs text-[var(--home-muted)]">{calculateReadTime(post.content)}</span>
                 </div>
-                <h3 className="text-lg font-bold text-[#09090B] group-hover:text-[#2563EB] transition-colors duration-200 line-clamp-2 mb-3">
+                <h3 className="text-lg font-bold text-[var(--home-text-strong)] group-hover:text-[#2563EB] transition-colors duration-200 line-clamp-2 mb-3">
                   {post.title}
                 </h3>
-                <p className="text-sm text-[#71717A] line-clamp-2 mb-4">{post.excerpt}</p>
+                <p className="text-sm text-[var(--home-muted)] line-clamp-2 mb-4">{post.excerpt}</p>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-[#A1A1AA]">
+                  <span className="text-xs text-[var(--home-muted-soft)]">
                     {new Date(post.created_at).toLocaleDateString("zh-TW", {
                       year: "numeric",
                       month: "short",
@@ -268,7 +272,7 @@ export default async function Home() {
                 </div>
               </Link>
             )) : (
-              <div className="col-span-full text-center py-8 text-[#71717A]">
+              <div className="col-span-full text-center py-8 text-[var(--home-muted)]">
                 還沒有文章，敬請期待！
               </div>
             )}
@@ -277,16 +281,16 @@ export default async function Home() {
 
         {/* Contact Section */}
         <section id="contact" className="mt-32 mb-20 scroll-mt-24">
-          <div className="p-12 rounded-3xl bg-gradient-to-br from-[#18181B] to-[#3F3F46] text-white text-center">
+          <div className="p-12 rounded-3xl bg-gradient-to-br from-[var(--home-contact-from)] to-[var(--home-contact-to)] text-[var(--home-contact-text)] text-center">
             <h2 className="text-4xl font-black mb-4">Let&apos;s Work Together</h2>
-            <p className="text-white/70 max-w-lg mx-auto mb-8">
+            <p className="max-w-lg mx-auto mb-8 text-[var(--home-contact-soft)]">
               Have a project in mind? Let&apos;s create something amazing together. 
               I&apos;m always open to discussing new opportunities.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <a 
                 href="mailto:b13705020@ntu.edu.tw"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-[#18181B] font-semibold hover:bg-[#F4F4F5] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-[#0f172a] font-semibold hover:bg-[#E2E8F0] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -294,9 +298,9 @@ export default async function Home() {
                 Get in Touch
               </a>
               <a 
-                href="https://drive.google.com/file/d/1ydMe7BYLDkXabV9UNFn5D9Nby9zaH6HA/view"
+                href={resumeUrl}
                 download
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border-2 border-white text-white font-semibold hover:bg-white hover:text-[#18181B] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border-2 border-white text-white font-semibold hover:bg-white hover:text-[#0f172a] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -308,10 +312,11 @@ export default async function Home() {
         </section>
 
         {/* Footer */}
-        <footer className="border-t border-[#18181B]/10 py-8 text-center text-sm text-[#71717A]">
+        <footer className="border-t border-[var(--home-border)] py-8 text-center text-sm text-[var(--home-muted)]">
           <p>© 2026 CdyTim. All rights reserved. Built with Next.js and Supabase.</p>
         </footer>
       </div>
-    </main>
+      </main>
+    </HomeThemeSwitcher>
   );
 }

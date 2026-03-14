@@ -99,7 +99,7 @@ export default function ExperienceManager({ initialExperiences }: ExperienceMana
   }
 
   return (
-    <main className="min-h-screen bg-[#FAFAFA]">
+    <main className="min-h-screen bg-transparent">
       <div className="mx-auto max-w-4xl px-6 py-10">
         {/* Header */}
         <header className="flex items-center justify-between mb-10">
