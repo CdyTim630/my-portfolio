@@ -169,7 +169,7 @@ export default async function Home() {
                 I&apos;m a B.B.A. student in Information Management at National Taiwan University, passionate about full-stack web development and coding.
               </p>
               <p>
-                Currently, I am a teaching assistant for Calculus in the Department of Information Management at National Taiwan University. Meanwhile, I&apos;m enhancing my skills in React and Next.js through hands-on projects and internships. I enjoy collaborating with others to create user-friendly web applications.
+                Currently, I am a teaching assistant for Calculus in the Department of Information Management at National Taiwan University. Meanwhile, I&apos;m enhancing my skills in React and Next.js through hands-on projects and internships. I enjoy collaborating with others to create user-friendly applications.
               </p>
             </div>
             <div className="flex flex-col gap-3 justify-center">
