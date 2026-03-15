@@ -113,17 +113,17 @@ export default async function BlogPostPage({
 
           {/* Article Content */}
           <div className="prose prose-lg prose-slate max-w-none 
-            prose-headings:font-black prose-headings:text-[#09090B] prose-headings:tracking-tight
+            prose-headings:font-black prose-headings:text-[var(--home-text-strong)] prose-headings:tracking-tight
             prose-h2:text-2xl prose-h2:mt-12 prose-h2:mb-4
             prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3
-            prose-p:text-[#3F3F46] prose-p:leading-relaxed
+            prose-p:text-[var(--home-text)] prose-p:leading-relaxed
             prose-a:text-[#2563EB] prose-a:no-underline hover:prose-a:underline
-            prose-strong:text-[#09090B] prose-strong:font-semibold
-            prose-ul:text-[#3F3F46] prose-ol:text-[#3F3F46]
+            prose-strong:text-[var(--home-text-strong)] prose-strong:font-semibold
+            prose-ul:text-[var(--home-text)] prose-ol:text-[var(--home-text)]
             prose-li:marker:text-[#2563EB]
-            prose-code:text-[#09090B] prose-code:bg-[#F4F4F5] prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:text-sm prose-code:font-normal prose-code:before:content-none prose-code:after:content-none
+            prose-code:text-[var(--home-text-strong)] prose-code:bg-[var(--home-surface-muted)] prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:text-sm prose-code:font-normal prose-code:before:content-none prose-code:after:content-none
             prose-pre:bg-[#18181B] prose-pre:text-white prose-pre:rounded-xl
-            prose-blockquote:border-l-[#2563EB] prose-blockquote:bg-[#F4F4F5] prose-blockquote:py-1 prose-blockquote:rounded-r-xl
+            prose-blockquote:border-l-[#2563EB] prose-blockquote:bg-[var(--home-surface-muted)] prose-blockquote:py-1 prose-blockquote:rounded-r-xl
             prose-img:rounded-xl prose-img:shadow-lg prose-img:my-8
           ">
             <ReactMarkdown remarkPlugins={[remarkGfm]}>

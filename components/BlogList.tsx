@@ -172,10 +172,10 @@ export default function BlogList({ posts, categories }: BlogListProps) {
               <Link
                 key={post.id}
                 href={`/blog/${post.id}`}
-                className="group flex flex-col p-6 rounded-2xl bg-white border border-[#18181B]/10 hover:border-[#2563EB]/50 hover:shadow-xl hover:-translate-y-2 transition-all duration-300"
+                className="blog-preview-card group flex flex-col p-6 rounded-2xl bg-[var(--home-surface)] border border-[var(--home-border)] shadow-[0_14px_34px_-26px_rgba(15,23,42,0.42)] hover:border-[#2563EB]/55 hover:shadow-[0_22px_44px_-24px_rgba(37,99,235,0.32)] hover:-translate-y-2 transition-all duration-300"
               >
                 {/* Cover Image */}
-                <div className="w-full aspect-video rounded-xl bg-gradient-to-br from-[#E4E4E7] to-[#D4D4D8] mb-5 overflow-hidden">
+                <div className="w-full aspect-video rounded-xl bg-gradient-to-br from-[var(--home-surface-muted)] to-[var(--home-border)] mb-5 overflow-hidden">
                   {post.cover_image ? (
                     <img
                       src={post.cover_image}
@@ -183,7 +183,7 @@ export default function BlogList({ posts, categories }: BlogListProps) {
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-[#A1A1AA] text-sm">
+                    <div className="w-full h-full flex items-center justify-center text-[var(--home-muted-soft)] text-sm">
                       Cover Image
                     </div>
                   )}

@@ -57,7 +57,7 @@ export default function HomeThemeSwitcher({ children }: HomeThemeSwitcherProps) 
     : "opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto group-focus-within:opacity-100 group-focus-within:translate-y-0 group-focus-within:pointer-events-auto";
 
   return (
-    <div className="home-theme relative" data-mode={mode}>
+    <div className="home-theme relative text-[var(--home-text)] transition-colors duration-300" data-mode={mode}>
       <div aria-hidden className="home-theme-ambient" />
 
       <div ref={wrapperRef} className="group fixed bottom-5 right-5 z-40">

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
+import HomeThemeSwitcher from "@/components/HomeThemeSwitcher";
 
 export default function LoginPage() {
   const supabase = createClient();
@@ -67,9 +68,10 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#FAFAFA] flex items-center justify-center p-6">
-      <div className="w-full max-w-md">
-        <div className="bg-white rounded-2xl border border-[#18181B]/10 p-8 shadow-sm">
+    <HomeThemeSwitcher>
+      <main className="min-h-screen bg-transparent flex items-center justify-center p-6">
+        <div className="w-full max-w-md">
+          <div className="bg-white rounded-2xl border border-[#18181B]/10 p-8 shadow-sm">
           {/* Logo */}
           <div className="text-center mb-8">
             <Link href="/" className="inline-block">
@@ -183,8 +185,9 @@ export default function LoginPage() {
               返回首頁
             </Link>
           </div>
+          </div>
         </div>
-      </div>
-    </main>
+      </main>
+    </HomeThemeSwitcher>
   );
 }
