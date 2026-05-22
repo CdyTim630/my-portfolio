@@ -1,7 +1,7 @@
 'use client';
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const items = [
   { label: "Home", href: "/" },
@@ -17,17 +17,51 @@ interface NavbarProps {
 
 export default function Navbar({ resumeUrl }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
   const safeResumeUrl =
     resumeUrl || "https://drive.google.com/file/d/1ydMe7BYLDkXabV9UNFn5D9Nby9zaH6HA/view";
 
+  useEffect(() => {
+    let raf = 0;
+    function check() {
+      setScrolled(window.scrollY > 16);
+    }
+    function onScroll() {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(check);
+    }
+    check();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+
   return (
-    <header className="sticky top-0 z-50 bg-transparent backdrop-blur-md py-4 -mt-4">
+    <header
+      className={`sticky top-0 z-50 -mt-4 transition-all duration-300 ${
+        scrolled
+          ? "bg-[var(--home-nav-bg)] backdrop-blur-xl py-3 shadow-[0_4px_24px_-12px_rgba(15,23,42,0.18)]"
+          : "bg-transparent backdrop-blur-md py-4"
+      }`}
+    >
       <div className="flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3 group cursor-pointer">
-          <div className="h-10 w-10 rounded-full bg-[var(--home-text-strong)] text-[var(--home-bg)] grid place-items-center font-bold group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
+          <div
+            className={`relative grid place-items-center rounded-full bg-[var(--home-text-strong)] text-[var(--home-bg)] font-bold transition-all duration-300 group-hover:scale-110 group-hover:rotate-6 ${
+              scrolled ? "h-9 w-9 text-sm" : "h-10 w-10"
+            }`}
+          >
+            <span className="absolute inset-0 rounded-full animate-ring-pulse pointer-events-none" />
             Tim
           </div>
-          <div className="text-xl font-semibold tracking-tight text-[var(--home-text-strong)] group-hover:text-[var(--home-primary)] transition-colors duration-200">
+          <div
+            className={`font-semibold tracking-tight text-[var(--home-text-strong)] transition-all duration-300 group-hover:text-[var(--home-primary)] ${
+              scrolled ? "text-lg" : "text-xl"
+            }`}
+          >
             CdyTim
           </div>
         </Link>
@@ -72,7 +106,7 @@ export default function Navbar({ resumeUrl }: NavbarProps) {
       </div>
 
       {mobileMenuOpen && (
-        <nav className="md:hidden mt-4 pb-4 space-y-3 border border-[var(--home-border)] rounded-2xl bg-[var(--home-surface)]/95 pt-4 animate-fade-in">
+        <nav className="md:hidden mt-4 pb-4 space-y-3 border border-[var(--home-border)] rounded-2xl bg-[var(--home-surface)]/95 backdrop-blur-xl pt-4 animate-fade-in">
           {items.map((it) => (
             <Link
               key={it.label}

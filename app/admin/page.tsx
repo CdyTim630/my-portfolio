@@ -22,5 +22,17 @@ export default async function AdminPage() {
     .from("comments")
     .select("*", { count: "exact", head: true });
 
-  return <AdminDashboard user={data.user} posts={posts || []} commentsCount={commentsCount || 0} />;
+  // 取得日記總數（受 RLS 保護，只會回傳本人的）
+  const { count: diariesCount } = await supabase
+    .from("diaries")
+    .select("*", { count: "exact", head: true });
+
+  return (
+    <AdminDashboard
+      user={data.user}
+      posts={posts || []}
+      commentsCount={commentsCount || 0}
+      diariesCount={diariesCount || 0}
+    />
+  );
 }

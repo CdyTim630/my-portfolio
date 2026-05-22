@@ -5,6 +5,7 @@ import SpotifyEmbed from "@/components/SpotifyEmbed";
 import ShareAndComments from "@/components/ShareAndComments";
 import { createClient } from "@/lib/supabase/server";
 import { getResumeUrl } from "@/lib/site-settings";
+import Reveal from "@/components/Reveal";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
@@ -79,30 +80,32 @@ export default async function BlogPostPage({
 
         {/* Article Header */}
         <article>
-          <header className="mb-10">
-            <div className="flex items-center gap-3 mb-6">
-              <span className="px-3 py-1 rounded-lg bg-[#2563EB]/10 text-[#2563EB] text-sm font-medium">
-                {post.category}
-              </span>
-              <span className="text-sm text-[#71717A]">{calculateReadTime(post.content)}</span>
-              <span className="text-sm text-[#71717A]">•</span>
-              <span className="text-sm text-[#71717A]">
-                {new Date(post.created_at).toLocaleDateString("zh-TW", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
-              </span>
-            </div>
-            
-            <h1 className="text-4xl md:text-5xl font-black text-[#09090B] tracking-tight leading-tight mb-6">
-              {post.title}
-            </h1>
-            
-            <p className="text-xl text-[#3F3F46] leading-relaxed">
-              {post.excerpt}
-            </p>
-          </header>
+          <Reveal variant="up">
+            <header className="mb-10">
+              <div className="flex items-center gap-3 mb-6 flex-wrap">
+                <span className="px-3 py-1 rounded-lg bg-[#2563EB]/10 text-[#2563EB] text-sm font-medium">
+                  {post.category}
+                </span>
+                <span className="text-sm text-[#71717A]">{calculateReadTime(post.content)}</span>
+                <span className="text-sm text-[#71717A]">•</span>
+                <span className="text-sm text-[#71717A]">
+                  {new Date(post.created_at).toLocaleDateString("zh-TW", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </span>
+              </div>
+
+              <h1 className="text-4xl md:text-5xl font-black text-[var(--home-text-strong)] tracking-tight leading-tight mb-6">
+                {post.title}
+              </h1>
+
+              <p className="text-xl text-[var(--home-text)] leading-relaxed">
+                {post.excerpt}
+              </p>
+            </header>
+          </Reveal>
 
           {/* Spotify Player */}
           {post.spotify_track_id && (
