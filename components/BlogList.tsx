@@ -126,35 +126,46 @@ export default function BlogList({ posts, categories }: BlogListProps) {
   return (
     <>
       {/* Filter Tags */}
-      <div className="flex flex-wrap gap-2 mb-10">
+      <div className="flex flex-wrap gap-2 mb-10 animate-fade-in">
         {/* All 按鈕 */}
         <button
           onClick={() => setSelectedCategory('All')}
-          className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
+          className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 ${
             selectedCategory === 'All'
               ? 'bg-[#18181B] text-white shadow-lg shadow-[#18181B]/25 scale-105'
-              : 'bg-white border-2 border-[#18181B]/10 text-[#3F3F46] hover:border-[#18181B] hover:scale-105'
+              : 'bg-white border-2 border-[#18181B]/10 text-[#3F3F46] hover:border-[#18181B] hover:scale-105 hover:-translate-y-0.5'
           }`}
         >
-          All
+          <span className="inline-flex items-center gap-1.5">
+            All
+            <span className="rounded-full bg-current/10 px-1.5 py-0.5 text-[10px] opacity-70">
+              {posts.length}
+            </span>
+          </span>
         </button>
         
         {/* 分類按鈕 */}
         {categories.map((category) => {
           const colors = getColorClasses(category.color);
           const isActive = selectedCategory === category.name;
-          
+          const count = posts.filter((p) => p.category === category.name).length;
+
           return (
             <button
               key={category.name}
               onClick={() => setSelectedCategory(category.name)}
-              className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 border-2 ${
+              className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 border-2 ${
                 isActive
                   ? `${colors.bg} ${colors.text} ${colors.border} shadow-lg scale-105`
-                  : `bg-white border-[#18181B]/10 text-[#3F3F46] ${colors.hover} hover:scale-105`
+                  : `bg-white border-[#18181B]/10 text-[#3F3F46] ${colors.hover} hover:scale-105 hover:-translate-y-0.5`
               }`}
             >
-              {category.name}
+              <span className="inline-flex items-center gap-1.5">
+                {category.name}
+                <span className={`rounded-full px-1.5 py-0.5 text-[10px] opacity-70 ${isActive ? 'bg-current/10' : 'bg-[#18181B]/10'}`}>
+                  {count}
+                </span>
+              </span>
             </button>
           );
         })}
@@ -163,16 +174,17 @@ export default function BlogList({ posts, categories }: BlogListProps) {
       {/* Blog Grid */}
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredPosts && filteredPosts.length > 0 ? (
-          filteredPosts.map((post) => {
+          filteredPosts.map((post, idx) => {
             // 找到該文章分類對應的顏色
             const category = categories.find(c => c.name === post.category);
             const colors = getColorClasses(category?.color || 'blue');
-            
+
             return (
               <Link
                 key={post.id}
                 href={`/blog/${post.id}`}
-                className="blog-preview-card group flex flex-col p-6 rounded-2xl bg-[var(--home-surface)] border border-[var(--home-border)] shadow-[0_14px_34px_-26px_rgba(15,23,42,0.42)] hover:border-[#2563EB]/55 hover:shadow-[0_22px_44px_-24px_rgba(37,99,235,0.32)] hover:-translate-y-2 transition-all duration-300"
+                style={{ animationDelay: `${Math.min(idx * 60, 360)}ms`, animationFillMode: 'both' }}
+                className="blog-preview-card group flex flex-col p-6 rounded-2xl bg-[var(--home-surface)] border border-[var(--home-border)] shadow-[0_14px_34px_-26px_rgba(15,23,42,0.42)] hover:border-[#2563EB]/55 hover:shadow-[0_22px_44px_-24px_rgba(37,99,235,0.32)] hover:-translate-y-2 transition-all duration-300 animate-slide-up"
               >
                 {/* Cover Image */}
                 <div className="w-full aspect-video rounded-xl bg-gradient-to-br from-[var(--home-surface-muted)] to-[var(--home-border)] mb-5 overflow-hidden">

@@ -20,12 +20,14 @@ interface AdminDashboardProps {
   user: User;
   posts: Post[];
   commentsCount?: number;
+  diariesCount?: number;
 }
 
 export default function AdminDashboard({
   user,
   posts: initialPosts,
   commentsCount = 0,
+  diariesCount = 0,
 }: AdminDashboardProps) {
   const supabase = createClient();
   const [posts, setPosts] = useState(initialPosts);
@@ -82,28 +84,47 @@ export default function AdminDashboard({
           </div>
         </header>
 
-        <div className="mb-8 grid grid-cols-2 gap-6 md:grid-cols-4">
-          <div className="rounded-2xl border border-[#18181B]/10 bg-white p-6 shadow-sm">
+        <div className="mb-8 grid grid-cols-2 gap-6 md:grid-cols-4 lg:grid-cols-5">
+          <div className="rounded-2xl border border-[#18181B]/10 bg-white p-6 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
             <div className="text-3xl font-black text-[#09090B]">{posts.length}</div>
             <div className="mt-1 text-sm text-[#71717A]">總文章數</div>
           </div>
-          <div className="rounded-2xl border border-[#18181B]/10 bg-white p-6 shadow-sm">
+          <div className="rounded-2xl border border-[#18181B]/10 bg-white p-6 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
             <div className="text-3xl font-black text-[#2563EB]">{posts.filter((p) => p.published).length}</div>
             <div className="mt-1 text-sm text-[#71717A]">已發布</div>
           </div>
-          <div className="rounded-2xl border border-[#18181B]/10 bg-white p-6 shadow-sm">
+          <div className="rounded-2xl border border-[#18181B]/10 bg-white p-6 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
             <div className="text-3xl font-black text-[#F59E0B]">{posts.filter((p) => !p.published).length}</div>
             <div className="mt-1 text-sm text-[#71717A]">草稿</div>
           </div>
           <Link
             href="/admin/comments"
-            className="group rounded-2xl border border-[#18181B]/10 bg-white p-6 shadow-sm transition-all duration-200 hover:border-[#10B981] hover:shadow-md"
+            className="group rounded-2xl border border-[#18181B]/10 bg-white p-6 shadow-sm transition-all duration-200 hover:border-[#10B981] hover:shadow-md hover:-translate-y-0.5"
           >
             <div className="text-3xl font-black text-[#10B981] transition-transform group-hover:scale-105">
               {commentsCount}
             </div>
             <div className="mt-1 flex items-center gap-1 text-sm text-[#71717A]">
               留言數
+              <svg
+                className="h-4 w-4 opacity-0 transition-opacity group-hover:opacity-100"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
+          </Link>
+          <Link
+            href="/admin/diary"
+            className="group rounded-2xl border border-[#18181B]/10 bg-white p-6 shadow-sm transition-all duration-200 hover:border-[#EC4899] hover:shadow-md hover:-translate-y-0.5"
+          >
+            <div className="text-3xl font-black text-[#EC4899] transition-transform group-hover:scale-105">
+              {diariesCount}
+            </div>
+            <div className="mt-1 flex items-center gap-1 text-sm text-[#71717A]">
+              日記
               <svg
                 className="h-4 w-4 opacity-0 transition-opacity group-hover:opacity-100"
                 fill="none"
@@ -206,6 +227,27 @@ export default function AdminDashboard({
                 </svg>
               </div>
               <span className="text-sm font-semibold text-[#0284C7]">履歷連結</span>
+            </Link>
+
+            <Link
+              href="/admin/diary"
+              className="group flex items-center gap-3 rounded-xl border border-[#EC4899]/20 bg-[#FDF2F8] px-4 py-3 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#EC4899]/40"
+            >
+              <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white text-[#EC4899] shadow-sm">
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M11 5H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                  />
+                </svg>
+              </div>
+              <span className="text-sm font-semibold text-[#BE185D]">私人日記</span>
+              <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-white/70 px-2 py-0.5 text-[10px] font-medium text-[#9D174D]">
+                <span className="w-1 h-1 rounded-full bg-[#EC4899] animate-pulse" />
+                Private
+              </span>
             </Link>
           </div>
         </section>
