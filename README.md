@@ -34,3 +34,29 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Keep Supabase active on the Free plan
+
+The production deployment includes a Vercel Cron Job that performs three tiny
+database reads every day at `03:00 UTC`. This creates regular database activity
+for a low-traffic Supabase Free project.
+
+Before deploying, add a Vercel environment variable named `CRON_SECRET` for the
+Production environment. Use a random value of at least 16 characters. Vercel
+automatically sends it as a Bearer token when invoking the cron route.
+
+The existing variables are also required in Production:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=your-project-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+CRON_SECRET=your-random-secret
+```
+
+After the next production deployment, confirm that
+`/api/cron/supabase-keepalive` appears in **Vercel → Project → Settings → Cron
+Jobs**. A successful invocation returns `200` and `{ "ok": true }`; calls
+without the Bearer token return `401`.
+
+The cron uses the public anon key and a read-only query, so no Supabase
+`service_role` key is needed. Vercel Cron runs only on production deployments.
