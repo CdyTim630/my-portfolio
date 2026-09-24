@@ -41,22 +41,29 @@ The production deployment includes a Vercel Cron Job that performs three tiny
 database reads every day at `03:00 UTC`. This creates regular database activity
 for a low-traffic Supabase Free project.
 
-Before deploying, add a Vercel environment variable named `CRON_SECRET` for the
-Production environment. Use a random value of at least 16 characters. Vercel
-automatically sends it as a Bearer token when invoking the cron route.
+`CRON_SECRET` is optional. If you add it to the Vercel Production environment,
+use a random value of at least 16 characters. Vercel automatically sends it as
+a Bearer token when invoking the cron route, and other callers receive `401`.
+Without it, the route remains public so the scheduled reads still run; this
+route only makes small, read-only queries with the public anon key.
 
 The existing variables are also required in Production:
 
 ```env
 NEXT_PUBLIC_SUPABASE_URL=your-project-url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-CRON_SECRET=your-random-secret
+# Optional: CRON_SECRET=your-random-secret
 ```
 
 After the next production deployment, confirm that
 `/api/cron/supabase-keepalive` appears in **Vercel → Project → Settings → Cron
-Jobs**. A successful invocation returns `200` and `{ "ok": true }`; calls
-without the Bearer token return `401`.
+Jobs**, is enabled, and its **View Logs** show a daily `200` response with
+`{ "ok": true }`. A `502` means the Supabase query failed; check that the
+Production URL/key point to the intended project and that `posts` is readable.
+If you set `CRON_SECRET`, redeploy so the function receives the new value.
 
 The cron uses the public anon key and a read-only query, so no Supabase
 `service_role` key is needed. Vercel Cron runs only on production deployments.
+If Supabase has already paused the project, resume it in the Supabase Dashboard
+once; the scheduled reads cannot resume a paused project. A paid Supabase plan
+is the only guaranteed way to prevent automatic inactivity pausing.

@@ -9,15 +9,9 @@ export async function GET(request: Request) {
   const cronSecret = process.env.CRON_SECRET;
   const authorization = request.headers.get("authorization");
 
-  if (!cronSecret) {
-    console.error("Supabase keepalive skipped: CRON_SECRET is not configured.");
-    return NextResponse.json(
-      { ok: false, error: "Cron is not configured" },
-      { status: 503 }
-    );
-  }
-
-  if (authorization !== `Bearer ${cronSecret}`) {
+  // Vercel sends this header only when CRON_SECRET is configured. Keep the
+  // scheduled read working on projects that have not set the optional secret.
+  if (cronSecret && authorization !== `Bearer ${cronSecret}`) {
     return NextResponse.json(
       { ok: false, error: "Unauthorized" },
       { status: 401 }
