@@ -1,0 +1,16 @@
+node_modules
+.next
+.git
+.github
+.env*
+!.env.example
+.vercel
+coverage
+playwright-report
+test-results
+.local-data
+*.tsbuildinfo
+npm-debug.log*
+.DS_Store
+.codex
+.agents

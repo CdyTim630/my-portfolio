@@ -1,43 +1,52 @@
-import Navbar from "@/components/Navbar";
+import PersonalNavbar from "@/components/personal/PersonalNavbar";
 import BlogList from "@/components/BlogList";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
+import { getPublicContent } from "@/lib/public-content";
+import type { Metadata } from "next";
 import { getResumeUrl } from "@/lib/site-settings";
 import Reveal from "@/components/Reveal";
 
+export const revalidate = 300;
+
+export const metadata: Metadata = {
+  title: "Blog",
+  description:
+    "Notes on software, learning, and life at National Taiwan University.",
+  alternates: { canonical: "/blog" },
+};
+
 export default async function BlogPage() {
-  const supabase = await createClient();
-  const resumeUrl = await getResumeUrl();
-  
-  // 從 Supabase 取得已發布的文章
-  const { data: posts } = await supabase
-    .from("posts")
-    .select("*")
-    .eq("published", true)
-    .order("created_at", { ascending: false });
-
-  // 從 Supabase 取得所有分類（包含顏色）
-  const { data: categories } = await supabase
-    .from("categories")
-    .select("name, color")
-    .order("display_order", { ascending: true });
-
-  const categoryList = categories || [];
+  const [{ posts, categories: categoryList, available }, resumeUrl] =
+    await Promise.all([getPublicContent(), getResumeUrl()]);
 
   return (
-    <main className="min-h-screen bg-transparent">
+    <main
+      id="main-content"
+      className="min-h-screen bg-transparent text-[var(--home-text)]"
+    >
       <div className="mx-auto max-w-6xl px-6 py-10">
-        <Navbar resumeUrl={resumeUrl} />
+        <PersonalNavbar resumeUrl={resumeUrl} />
 
         {/* Header */}
         <section className="mt-16 mb-12">
           <Reveal variant="up">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 text-[#3F3F46] hover:text-[#09090B] transition-colors duration-200 mb-8 group"
+              className="inline-flex items-center gap-2 text-[var(--home-text)] hover:text-[var(--home-text-strong)] transition-colors duration-200 mb-8 group"
             >
-              <svg className="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              <svg
+                aria-hidden="true"
+                className="w-4 h-4 group-hover:-translate-x-1 transition-transform"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 19l-7-7 7-7"
+                />
               </svg>
               Back to Home
             </Link>
@@ -48,18 +57,46 @@ export default async function BlogPage() {
             </h1>
           </Reveal>
           <Reveal variant="up" delay={120}>
-            <p className="mt-4 text-lg text-[#3F3F46] max-w-2xl">
-              記錄生活、課業、心得等等。共 <span className="font-semibold text-[#09090B]">{posts?.length ?? 0}</span> 篇文章。
+            <p className="mt-4 text-lg text-[var(--home-text)] max-w-2xl">
+              記錄生活、課業、心得等等。共{" "}
+              <span className="font-semibold text-[var(--home-text-strong)]">
+                {posts.length}
+              </span>{" "}
+              篇文章。
             </p>
           </Reveal>
         </section>
 
         {/* Blog List with Filtering */}
-        <BlogList posts={posts || []} categories={categoryList} />
+        {!available && posts.length === 0 ? (
+          <div
+            role="status"
+            className="rounded-2xl border border-[var(--home-border)] bg-[var(--home-surface)] p-8"
+          >
+            <h2 className="text-xl font-semibold">
+              Writing is temporarily unavailable
+            </h2>
+            <p className="mt-3">
+              The article archive could not be loaded. You can still explore the
+              project case studies.
+            </p>
+            <Link
+              href="/portfolio"
+              className="mt-4 inline-block text-[var(--home-primary)]"
+            >
+              View portfolio →
+            </Link>
+          </div>
+        ) : (
+          <BlogList posts={posts} categories={categoryList} />
+        )}
 
         {/* Footer */}
-        <footer className="mt-20 border-t border-[#18181B]/10 py-8 text-center text-sm text-[#71717A]">
-          <p>© 2026 CdyTim. All rights reserved. Built with Next.js and Tailwind CSS.</p>
+        <footer className="mt-20 border-t border-[var(--home-border)] py-8 text-center text-sm text-[var(--home-muted)]">
+          <p>
+            © 2026 CdyTim. All rights reserved. Built with Next.js and Tailwind
+            CSS.
+          </p>
         </footer>
       </div>
     </main>

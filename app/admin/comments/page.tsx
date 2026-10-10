@@ -53,7 +53,7 @@ export default function CommentsPage() {
     }
 
     loadData();
-  }, []);
+  }, [supabase]);
 
   // 刪除單一留言
   const handleDeleteComment = async (commentId: string) => {
@@ -127,7 +127,7 @@ export default function CommentsPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-transparent">
+      <main id="main-content" className="min-h-screen bg-transparent">
         <div className="mx-auto max-w-6xl px-6 py-10">
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2563EB]"></div>
@@ -138,7 +138,7 @@ export default function CommentsPage() {
   }
 
   return (
-    <main className="min-h-screen bg-transparent">
+    <main id="main-content" className="min-h-screen bg-transparent">
       <div className="mx-auto max-w-6xl px-6 py-10">
         {/* Header */}
         <header className="flex items-center justify-between mb-10">

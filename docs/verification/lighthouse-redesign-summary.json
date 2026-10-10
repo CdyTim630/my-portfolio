@@ -1,0 +1,70 @@
+{
+  "date": "2026-10-10",
+  "environment": "Local macOS arm64 final production standalone build at127.0.0.1:3200; no Supabase credentials. Single simulated-mobile measurement per page, not field data.",
+  "pages": [
+    {
+      "page": "portfolio",
+      "path": "/portfolio?lang=zh-TW",
+      "fetchedAt": "2026-10-10T11:06:17.400Z",
+      "lighthouseVersion": "13.5.0",
+      "formFactor": "mobile",
+      "throttlingMethod": "simulate",
+      "scores": {
+        "performance": 93,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "first-contentful-paint": {
+          "value": 1525.4953500000001,
+          "display": "1.5 s"
+        },
+        "largest-contentful-paint": {
+          "value": 3120.49535,
+          "display": "3.1 s"
+        },
+        "cumulative-layout-shift": {
+          "value": 0,
+          "display": "0"
+        },
+        "total-blocking-time": {
+          "value": 22.5,
+          "display": "20 ms"
+        }
+      }
+    },
+    {
+      "page": "projects",
+      "path": "/projects?lang=en",
+      "fetchedAt": "2026-10-10T11:07:00.746Z",
+      "lighthouseVersion": "13.5.0",
+      "formFactor": "mobile",
+      "throttlingMethod": "simulate",
+      "scores": {
+        "performance": 93,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "first-contentful-paint": {
+          "value": 1506.4506000000001,
+          "display": "1.5 s"
+        },
+        "largest-contentful-paint": {
+          "value": 3111.4506,
+          "display": "3.1 s"
+        },
+        "cumulative-layout-shift": {
+          "value": 0,
+          "display": "0"
+        },
+        "total-blocking-time": {
+          "value": 14.5,
+          "display": "10 ms"
+        }
+      }
+    }
+  ]
+}

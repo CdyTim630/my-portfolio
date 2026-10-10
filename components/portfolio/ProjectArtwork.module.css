@@ -1,0 +1,187 @@
+.frame.frame:global(.work-visual.work-visual-clean),
+.frame.frame:global(.work-visual.work-visual-clean.work-visual-compact) {
+  display: block;
+  padding: 0;
+}
+.frame.frame:global(.work-visual.work-visual-clean):not(:global(.work-visual-compact)) {
+  height: 320px;
+}
+.artwork {
+  --art-bg: #f0f5fb;
+  --art-paper: #fff;
+  --art-border: #d3dfec;
+  --art-ink: #44586f;
+  --art-muted: #91a2b4;
+  --art-soft: #ecf1f6;
+  --art-accent: #3972bd;
+  --art-tint: #dce9f9;
+  --art-secondary: #428c83;
+  --art-secondary-tint: #dfefeb;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 208px;
+  overflow: hidden;
+  background-color: var(--art-bg);
+  background-image: radial-gradient(var(--art-border) .65px, transparent .65px);
+  background-size: 17px 17px;
+}
+.artwork[data-artwork="sigmile"] {
+  --art-bg: #edf5f2;
+  --art-accent: #2c7d72;
+  --art-tint: #d7e8e2;
+  --art-secondary: #5480b3;
+  --art-border: #d0e1da;
+}
+.artwork[data-artwork="tomybaby"] {
+  --art-bg: #f7f1ee;
+  --art-accent: #ad7868;
+  --art-tint: #f2dfd6;
+  --art-secondary: #7f8c78;
+  --art-secondary-tint: #e6ecdf;
+  --art-border: #e5d9d2;
+}
+.artwork[data-artwork="delivery"] {
+  --art-bg: #f0f3f7;
+  --art-accent: #527094;
+  --art-tint: #dce6f0;
+}
+.artwork[data-artwork="pipeline"] {
+  --art-bg: #f1f4f2;
+  --art-accent: #577d6c;
+  --art-tint: #dee9e2;
+  --art-secondary: #788cab;
+}
+.artwork[data-artwork="operations"],
+.artwork[data-artwork="document"],
+.artwork[data-artwork="network"] {
+  --art-bg: #f0f3f7;
+  --art-accent: #527094;
+  --art-tint: #dce6f0;
+}
+.artwork[data-artwork="watermap"],
+.artwork[data-artwork="nutrition"],
+.artwork[data-artwork="camp"] {
+  --art-bg: #f0f5f3;
+  --art-border: #d6e3de;
+  --art-accent: #507d73;
+  --art-tint: #dcece5;
+  --art-secondary: #527b9b;
+  --art-secondary-tint: #deebf0;
+}
+.artwork[data-artwork="journal"],
+.artwork[data-artwork="campus"] {
+  --art-bg: #f3f3f7;
+  --art-accent: #7876a0;
+  --art-tint: #e3e2ef;
+  --art-border: #dedee9;
+}
+.artwork[data-artwork="combat"],
+.artwork[data-artwork="tournament"],
+.artwork[data-artwork="puzzle"] {
+  --art-bg: #f7f2ee;
+  --art-accent: #a57563;
+  --art-tint: #eee0d8;
+  --art-border: #e8dcd3;
+  --art-secondary: #728a7d;
+  --art-secondary-tint: #e0e9e2;
+}
+.artwork > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 208px;
+}
+.caption {
+  position: absolute;
+  right: 13px;
+  bottom: 10px;
+  color: var(--art-ink);
+  font-family: var(--font-portfolio-body), sans-serif;
+  font-size: 9px;
+  line-height: 1;
+  letter-spacing: .015em;
+  opacity: .72;
+}
+.shadow { filter: drop-shadow(0 5px 7px rgb(39 64 86 / 7%)); }
+.paper { fill: var(--art-paper); stroke: var(--art-border); stroke-width: 1.25; }
+.tint { fill: var(--art-tint); }
+.soft { fill: var(--art-soft); }
+.accentFill { fill: var(--art-accent); }
+.secondaryTint { fill: var(--art-secondary-tint); }
+.rule { fill: none; stroke: var(--art-border); stroke-width: 1; }
+.connector { fill: none; stroke: var(--art-muted); stroke-width: 1.5; stroke-dasharray: 3 5; stroke-linecap: round; stroke-linejoin: round; }
+.inkLine, .mutedLine, .accentLine, .secondaryLine, .whiteLine {
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.inkLine { stroke: var(--art-ink); opacity: .8; }
+.mutedLine { stroke: var(--art-muted); }
+.accentLine { stroke: var(--art-accent); }
+.secondaryLine { stroke: var(--art-secondary); }
+.whiteLine { stroke: var(--art-paper); }
+.mapBlocks { fill: var(--art-paper); stroke: var(--art-border); stroke-width: 1; }
+.route, .secondaryRoute, .routeGhost {
+  fill: none;
+  stroke: var(--art-accent);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.secondaryRoute { stroke: var(--art-secondary); stroke-width: 2; stroke-dasharray: 4 5; }
+.routeGhost { stroke: var(--art-tint); stroke-width: 7; }
+.stop { fill: var(--art-paper); stroke: var(--art-accent); stroke-width: 2; }
+.halo { fill: none; stroke: var(--art-border); stroke-width: 1; }
+.accentWave, .softWave { stroke-width: 5; stroke-linecap: round; }
+.accentWave { stroke: var(--art-accent); }
+.softWave { stroke: var(--art-tint); }
+.label { fill: var(--art-ink); font-family: var(--font-portfolio-body), sans-serif; font-size: 10px; text-anchor: middle; letter-spacing: .02em; }
+.tileNumber { fill: var(--art-ink); font-family: var(--font-portfolio-heading), sans-serif; font-size: 17px; font-weight: 600; text-anchor: middle; }
+:global(.portfolio-theme[data-mode="dark"]) .artwork,
+:global(.personal-site[data-mode="dark"]) .artwork {
+  --art-bg: #202735;
+  --art-paper: #293345;
+  --art-border: #3c4a60;
+  --art-ink: #b9c8dc;
+  --art-muted: #758ba7;
+  --art-soft: #354358;
+  --art-accent: #86b4ea;
+  --art-tint: #3a506d;
+  --art-secondary: #8cc6b8;
+  --art-secondary-tint: #354f4d;
+}
+:global(.portfolio-theme[data-mode="dark"]) .artwork[data-artwork="tomybaby"],
+:global(.personal-site[data-mode="dark"]) .artwork[data-artwork="tomybaby"] {
+  --art-bg: #302a2d;
+  --art-paper: #3b3438;
+  --art-border: #58464c;
+  --art-accent: #d6a596;
+  --art-tint: #604843;
+}
+:global(.portfolio-theme[data-mode="dark"]) .artwork[data-artwork="sigmile"],
+:global(.personal-site[data-mode="dark"]) .artwork[data-artwork="sigmile"] {
+  --art-bg: #202e2e;
+  --art-paper: #2a3a3b;
+  --art-border: #3f5152;
+  --art-accent: #88c6b7;
+  --art-tint: #3b5851;
+}
+.awardBadge.awardBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border: 1px solid #e8d9b8;
+  border-radius: 5px;
+  background: #faf6eb;
+  color: #8b6829;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.awardBadge[data-rank="second"] { border-color: #d9e0e8; color: #59677c; background: #f3f5f8; }
+:global(.portfolio-theme[data-mode="dark"]) .awardBadge { border-color: #675836; color: #ddc18a; background: #393329; }
+:global(.portfolio-theme[data-mode="dark"]) .awardBadge[data-rank="second"] { border-color: #485364; color: #b8c4d6; background: #2d3542; }

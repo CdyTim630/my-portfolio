@@ -2,22 +2,10 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from "next/image";
 
-interface Post {
-  id: number;
-  title: string;
-  excerpt?: string;
-  content: string;
-  category?: string;
-  cover_image?: string;
-  spotify_track_id?: string;
-  created_at: string;
-}
-
-interface Category {
-  name: string;
-  color: string;
-}
+import type { PublicPost as Post, PublicCategory as Category } from "@/lib/public-content";
+import { calculateReadTime } from "@/lib/reading-time";
 
 interface BlogListProps {
   posts: Post[];
@@ -85,42 +73,12 @@ function getColorClasses(colorName: string) {
   };
 }
 
-// 計算閱讀時間（支援中文和圖片）
-function calculateReadTime(content: string): string {
-  // 中文閱讀速度約 400-600 字/分鐘，取中間值 500
-  const chineseCharsPerMinute = 500;
-  // 英文閱讀速度約 200 字/分鐘
-  const englishWordsPerMinute = 200;
-  // 每張圖片增加 10 秒閱讀時間
-  const secondsPerImage = 10;
-
-  // 計算中文字數（匹配中文字符）
-  const chineseChars = (content.match(/[\u4e00-\u9fa5]/g) || []).length;
-  
-  // 計算英文單字數（移除中文後計算）
-  const textWithoutChinese = content.replace(/[\u4e00-\u9fa5]/g, ' ');
-  const englishWords = textWithoutChinese.split(/\s+/).filter(word => word.length > 0).length;
-  
-  // 計算圖片數量（markdown 圖片語法）
-  const imageCount = (content.match(/!\[.*?\]\(.*?\)/g) || []).length;
-  
-  // 計算總時間（分鐘）
-  const chineseMinutes = chineseChars / chineseCharsPerMinute;
-  const englishMinutes = englishWords / englishWordsPerMinute;
-  const imageMinutes = (imageCount * secondsPerImage) / 60;
-  
-  const totalMinutes = Math.ceil(chineseMinutes + englishMinutes + imageMinutes);
-  const minutes = Math.max(1, totalMinutes); // 至少 1 分鐘
-  
-  return `${minutes} min read`;
-}
-
 export default function BlogList({ posts, categories }: BlogListProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
 
   // 篩選文章
-  const filteredPosts = selectedCategory === 'All' 
-    ? posts 
+  const filteredPosts = selectedCategory === 'All'
+    ? posts
     : posts.filter(post => post.category === selectedCategory);
 
   return (
@@ -143,7 +101,7 @@ export default function BlogList({ posts, categories }: BlogListProps) {
             </span>
           </span>
         </button>
-        
+
         {/* 分類按鈕 */}
         {categories.map((category) => {
           const colors = getColorClasses(category.color);
@@ -189,7 +147,7 @@ export default function BlogList({ posts, categories }: BlogListProps) {
                 {/* Cover Image */}
                 <div className="w-full aspect-video rounded-xl bg-gradient-to-br from-[var(--home-surface-muted)] to-[var(--home-border)] mb-5 overflow-hidden">
                   {post.cover_image ? (
-                    <img
+                    <Image width={800} height={450} unoptimized
                       src={post.cover_image}
                       alt={post.title}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"

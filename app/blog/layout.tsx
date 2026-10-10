@@ -1,10 +1,10 @@
 import { ReactNode } from "react";
-import HomeThemeSwitcher from "@/components/HomeThemeSwitcher";
+import PersonalThemeSwitcher from "@/components/personal/PersonalThemeSwitcher";
 
 export default function BlogLayout({ children }: { children: ReactNode }) {
   return (
-    <HomeThemeSwitcher>
+    <PersonalThemeSwitcher>
       <div className="blog-theme">{children}</div>
-    </HomeThemeSwitcher>
+    </PersonalThemeSwitcher>
   );
 }

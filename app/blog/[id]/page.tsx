@@ -1,78 +1,107 @@
-import Navbar from "@/components/Navbar";
+import PersonalNavbar from "@/components/personal/PersonalNavbar";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import SpotifyEmbed from "@/components/SpotifyEmbed";
 import ShareAndComments from "@/components/ShareAndComments";
-import { createClient } from "@/lib/supabase/server";
+import { getPublishedPost } from "@/lib/public-content";
+import { calculateReadTime } from "@/lib/reading-time";
+import type { Metadata } from "next";
 import { getResumeUrl } from "@/lib/site-settings";
 import Reveal from "@/components/Reveal";
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
 
-// 計算閱讀時間（支援中文和圖片）
-function calculateReadTime(content: string): string {
-  // 中文閱讀速度約 400-600 字/分鐘，取中間值 500
-  const chineseCharsPerMinute = 500;
-  // 英文閱讀速度約 200 字/分鐘
-  const englishWordsPerMinute = 200;
-  // 每張圖片增加 10 秒閱讀時間
-  const secondsPerImage = 10;
+export const revalidate = 300;
+import MarkdownContent from "@/components/MarkdownContent";
 
-  // 計算中文字數（匹配中文字符）
-  const chineseChars = (content.match(/[\u4e00-\u9fa5]/g) || []).length;
-  
-  // 計算英文單字數（移除中文後計算）
-  const textWithoutChinese = content.replace(/[\u4e00-\u9fa5]/g, ' ');
-  const englishWords = textWithoutChinese.split(/\s+/).filter(word => word.length > 0).length;
-  
-  // 計算圖片數量（markdown 圖片語法）
-  const imageCount = (content.match(/!\[.*?\]\(.*?\)/g) || []).length;
-  
-  // 計算總時間（分鐘）
-  const chineseMinutes = chineseChars / chineseCharsPerMinute;
-  const englishMinutes = englishWords / englishWordsPerMinute;
-  const imageMinutes = (imageCount * secondsPerImage) / 60;
-  
-  const totalMinutes = Math.ceil(chineseMinutes + englishMinutes + imageMinutes);
-  const minutes = Math.max(1, totalMinutes); // 至少 1 分鐘
-  
-  return `${minutes} min read`;
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const { post } = await getPublishedPost(id);
+  if (!post)
+    return {
+      title: "Article unavailable",
+      robots: { index: false, follow: true },
+    };
+  return {
+    title: post.title,
+    description: post.excerpt || post.content.slice(0, 160),
+    alternates: { canonical: `/blog/${post.id}` },
+    openGraph: {
+      title: post.title,
+      description: post.excerpt || undefined,
+      type: "article",
+      publishedTime: post.created_at,
+      modifiedTime: post.updated_at,
+    },
+  };
 }
 
-export default async function BlogPostPage({ 
-  params 
-}: { 
-  params: Promise<{ id: string }> 
+export default async function BlogPostPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const supabase = await createClient();
-  const resumeUrl = await getResumeUrl();
-  
-  // 從 Supabase 取得單篇文章
-  const { data: post } = await supabase
-    .from("posts")
-    .select("*")
-    .eq("id", id)
-    .eq("published", true)
-    .single();
+  const [{ post, available }, resumeUrl] = await Promise.all([
+    getPublishedPost(id),
+    getResumeUrl(),
+  ]);
+  if (!available)
+    return (
+      <main id="main-content" className="min-h-screen text-[var(--home-text)]">
+        <div className="mx-auto max-w-4xl px-6 py-10">
+          <PersonalNavbar resumeUrl={resumeUrl} />
+          <section className="py-20" role="status">
+            <h1 className="text-3xl font-bold text-[var(--home-text-strong)]">
+              Article temporarily unavailable
+            </h1>
+            <p className="mt-4">
+              The archive could not be reached. Please try again later.
+            </p>
+            <Link
+              href="/blog"
+              className="mt-6 inline-block text-[var(--home-primary)]"
+            >
+              Back to Blog
+            </Link>
+          </section>
+        </div>
+      </main>
+    );
 
   if (!post) {
     notFound();
   }
 
   return (
-    <main className="min-h-screen bg-transparent">
+    <main
+      id="main-content"
+      className="min-h-screen bg-transparent text-[var(--home-text)]"
+    >
       <div className="mx-auto max-w-4xl px-6 py-10">
-        <Navbar resumeUrl={resumeUrl} />
+        <PersonalNavbar resumeUrl={resumeUrl} />
 
         {/* Back Navigation */}
         <div className="mt-12 mb-8">
-          <Link 
-            href="/blog" 
-            className="inline-flex items-center gap-2 text-[#3F3F46] hover:text-[#09090B] transition-colors duration-200 group"
+          <Link
+            href="/blog"
+            className="inline-flex items-center gap-2 text-[var(--home-text)] hover:text-[var(--home-text-strong)] transition-colors duration-200 group"
           >
-            <svg className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            <svg
+              aria-hidden="true"
+              className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-200"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
             </svg>
             Back to Blog
           </Link>
@@ -86,13 +115,16 @@ export default async function BlogPostPage({
                 <span className="px-3 py-1 rounded-lg bg-[#2563EB]/10 text-[#2563EB] text-sm font-medium">
                   {post.category}
                 </span>
-                <span className="text-sm text-[#71717A]">{calculateReadTime(post.content)}</span>
-                <span className="text-sm text-[#71717A]">•</span>
-                <span className="text-sm text-[#71717A]">
+                <span className="text-sm text-[var(--home-muted)]">
+                  {calculateReadTime(post.content)}
+                </span>
+                <span className="text-sm text-[var(--home-muted)]">•</span>
+                <span className="text-sm text-[var(--home-muted)]">
                   {new Date(post.created_at).toLocaleDateString("zh-TW", {
                     year: "numeric",
                     month: "long",
                     day: "numeric",
+                    timeZone: "Asia/Taipei",
                   })}
                 </span>
               </div>
@@ -115,7 +147,8 @@ export default async function BlogPostPage({
           )}
 
           {/* Article Content */}
-          <div className="prose prose-lg prose-slate max-w-none 
+          <div
+            className="prose prose-lg prose-slate max-w-none
             prose-headings:font-black prose-headings:text-[var(--home-text-strong)] prose-headings:tracking-tight
             prose-h2:text-2xl prose-h2:mt-12 prose-h2:mb-4
             prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3
@@ -128,10 +161,9 @@ export default async function BlogPostPage({
             prose-pre:bg-[#18181B] prose-pre:text-white prose-pre:rounded-xl
             prose-blockquote:border-l-[#2563EB] prose-blockquote:bg-[var(--home-surface-muted)] prose-blockquote:py-1 prose-blockquote:rounded-r-xl
             prose-img:rounded-xl prose-img:shadow-lg prose-img:my-8
-          ">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-              {post.content}
-            </ReactMarkdown>
+          "
+          >
+            <MarkdownContent>{post.content}</MarkdownContent>
           </div>
 
           {/* Share and Comments Section */}
@@ -139,8 +171,11 @@ export default async function BlogPostPage({
         </article>
 
         {/* Footer */}
-        <footer className="mt-20 border-t border-[#18181B]/10 py-8 text-center text-sm text-[#71717A]">
-          <p>© 2026 CdyTim. All rights reserved. Built with Next.js and Tailwind CSS.</p>
+        <footer className="mt-20 border-t border-[var(--home-border)] py-8 text-center text-sm text-[var(--home-muted)]">
+          <p>
+            © 2026 CdyTim. All rights reserved. Built with Next.js and Tailwind
+            CSS.
+          </p>
         </footer>
       </div>
     </main>

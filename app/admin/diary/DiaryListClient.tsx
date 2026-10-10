@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 
 interface DiaryRow {
@@ -49,10 +50,12 @@ export default function DiaryListClient({ diaries: initial }: { diaries: DiaryRo
   async function handleDelete(d: DiaryRow) {
     if (!confirm(`確定要刪除「${d.title}」？${d.published_post_id ? "（已發布到 Blog 的文章會一併移除）" : ""}`)) return;
     if (d.published_post_id) {
-      await supabase.from("posts").delete().eq("id", d.published_post_id);
+      const { error } = await supabase.from("posts").delete().eq("id", d.published_post_id);
+      if (error) { alert("無法移除已發布文章，日記尚未刪除。請稍後再試。"); return; }
     }
     const { error } = await supabase.from("diaries").delete().eq("id", d.id);
     if (!error) setDiaries((prev) => prev.filter((x) => x.id !== d.id));
+    else alert("日記刪除失敗。請重新載入，確認 Blog 與日記狀態。");
   }
 
   const stats = useMemo(() => {
@@ -130,7 +133,7 @@ export default function DiaryListClient({ diaries: initial }: { diaries: DiaryRo
             >
               {d.cover_image && (
                 <div className="aspect-video bg-[var(--home-surface-muted)] overflow-hidden">
-                  <img
+                  <Image width={800} height={450} unoptimized
                     src={d.cover_image}
                     alt={d.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"

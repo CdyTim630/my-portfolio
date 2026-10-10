@@ -1,43 +1,24 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { adminRoute, apiError, readJson } from "@/lib/api";
+import { parsePositiveId, parseExperienceInput } from "@/lib/validation";
 
-// PATCH - 更新 experience
-export async function PATCH(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+type Context = { params: Promise<{ id: string }> };
 
-  const { id } = await params;
-  const body = await request.json();
-  const { data, error } = await supabase
-    .from("experiences")
-    .update({ ...body, updated_at: new Date().toISOString() })
-    .eq("id", id)
-    .select()
-    .single();
-
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json(data);
+export async function PATCH(request: Request, context: Context) {
+  return adminRoute(request, async ({ supabase }) => {
+    const id = parsePositiveId((await context.params).id);
+    const body = parseExperienceInput(await readJson(request), true);
+    const { data, error } = await supabase.from("experiences").update({ ...body, updated_at: new Date().toISOString() }).eq("id", id).select().maybeSingle();
+    if (error) return apiError("Unable to update experience.", 502);
+    return data ? NextResponse.json(data) : apiError("Experience not found.", 404);
+  });
 }
 
-// DELETE - 刪除 experience
-export async function DELETE(
-  _request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  const { id } = await params;
-  const { error } = await supabase
-    .from("experiences")
-    .delete()
-    .eq("id", id);
-
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ success: true });
+export async function DELETE(request: Request, context: Context) {
+  return adminRoute(request, async ({ supabase }) => {
+    const id = parsePositiveId((await context.params).id);
+    const { data, error } = await supabase.from("experiences").delete().eq("id", id).select("id").maybeSingle();
+    if (error) return apiError("Unable to delete experience.", 502);
+    return data ? NextResponse.json({ success: true }) : apiError("Experience not found.", 404);
+  });
 }

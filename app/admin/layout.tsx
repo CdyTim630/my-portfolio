@@ -1,10 +1,15 @@
 import { ReactNode } from "react";
-import HomeThemeSwitcher from "@/components/HomeThemeSwitcher";
+import PersonalThemeSwitcher from "@/components/personal/PersonalThemeSwitcher";
+import { requireAdminPage } from "@/lib/admin-auth";
+import type { Metadata } from "next";
 
-export default function AdminLayout({ children }: { children: ReactNode }) {
+export const metadata: Metadata = { title: "Administration", robots: { index: false, follow: false } };
+
+export default async function AdminLayout({ children }: { children: ReactNode }) {
+  await requireAdminPage();
   return (
-    <HomeThemeSwitcher>
+    <PersonalThemeSwitcher>
       <div className="admin-theme">{children}</div>
-    </HomeThemeSwitcher>
+    </PersonalThemeSwitcher>
   );
 }

@@ -1,0 +1,70 @@
+/* Abstract category artwork; uploaded covers retain their original content. */
+.portfolio-theme .featured-archive-card .featured-archive-cover {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: 208px;
+  overflow: hidden;
+  border-bottom: 1px solid var(--home-border);
+  color: var(--collection-accent);
+  background: var(--collection-paper);
+}
+.portfolio-theme .featured-cover-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+}
+.portfolio-theme .featured-cover-art {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.portfolio-theme .featured-cover-art > i {
+  display: block;
+  width: 66px;
+  height: 80px;
+  border: 1px solid color-mix(in srgb, var(--collection-accent) 30%, var(--home-border));
+  border-radius: 10px;
+  background: var(--home-surface);
+}
+.portfolio-theme .featured-cover-art > i + i {
+  margin-left: -18px;
+}
+.portfolio-theme .featured-cover-art .featured-shape-two {
+  z-index: 1;
+  height: 106px;
+  background: var(--collection-shape);
+}
+.portfolio-theme .featured-archive-card[data-category="data"] .featured-cover-art {
+  align-items: end;
+  gap: 10px;
+}
+.portfolio-theme .featured-archive-card[data-category="data"] .featured-cover-art > i {
+  width: 36px;
+  height: 60px;
+  margin: 0;
+  border-radius: 6px 6px 2px 2px;
+}
+.portfolio-theme .featured-archive-card[data-category="data"] .featured-cover-art .featured-shape-two {
+  height: 85px;
+}
+.portfolio-theme .featured-archive-card[data-category="data"] .featured-cover-art .featured-shape-three {
+  height: 108px;
+}
+.portfolio-theme .featured-archive-card[data-category="systems"] .featured-cover-art {
+  flex-direction: column;
+  gap: 10px;
+}
+.portfolio-theme .featured-archive-card[data-category="systems"] .featured-cover-art > i {
+  width: 140px;
+  height: 26px;
+  margin: 0;
+  border-radius: 6px;
+}
+.portfolio-theme .featured-archive-card .work-card-title a > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}

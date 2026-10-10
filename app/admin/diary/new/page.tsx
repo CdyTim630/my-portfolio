@@ -1,12 +1,7 @@
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { requireAdminPage } from "@/lib/admin-auth";
 import DiaryEditor from "@/components/DiaryEditor";
 
 export default async function NewDiaryPage() {
-  const supabase = await createClient();
-  const { data } = await supabase.auth.getUser();
-  if (!data.user) {
-    redirect("/login");
-  }
+  await requireAdminPage();
   return <DiaryEditor mode="new" />;
 }

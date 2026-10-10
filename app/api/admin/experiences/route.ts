@@ -1,31 +1,18 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { adminRoute, apiError, readJson } from "@/lib/api";
+import { parseExperienceInput } from "@/lib/validation";
 
-// GET - 取得所有 experiences
-export async function GET() {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("experiences")
-    .select("*")
-    .order("sort_order", { ascending: true });
-
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json(data);
+export async function GET(request: Request) {
+  return adminRoute(request, async ({ supabase }) => {
+    const { data, error } = await supabase.from("experiences").select("*").order("sort_order", { ascending: true });
+    return error ? apiError("Unable to load experiences.", 502) : NextResponse.json(data);
+  });
 }
 
-// POST - 新增 experience
 export async function POST(request: Request) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  const body = await request.json();
-  const { data, error } = await supabase
-    .from("experiences")
-    .insert([body])
-    .select()
-    .single();
-
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json(data);
+  return adminRoute(request, async ({ supabase }) => {
+    const body = parseExperienceInput(await readJson(request));
+    const { data, error } = await supabase.from("experiences").insert(body).select().single();
+    return error ? apiError("Unable to create experience.", 502) : NextResponse.json(data, { status: 201 });
+  });
 }

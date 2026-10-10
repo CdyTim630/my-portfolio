@@ -1,14 +1,8 @@
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { requireAdminPage } from "@/lib/admin-auth";
 import ExperienceManager from "./ExperienceManager";
 
 export default async function ExperiencePage() {
-  const supabase = await createClient();
-  const { data } = await supabase.auth.getUser();
-
-  if (!data.user) {
-    redirect("/login");
-  }
+  const { supabase } = await requireAdminPage();
 
   const { data: experiences } = await supabase
     .from("experiences")

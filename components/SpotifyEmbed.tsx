@@ -5,6 +5,7 @@ interface SpotifyEmbedProps {
 }
 
 export default function SpotifyEmbed({ trackId }: SpotifyEmbedProps) {
+  if (!/^[A-Za-z0-9]{22}$/.test(trackId)) return null;
   return (
     <div className="p-4 rounded-2xl bg-gradient-to-r from-[#1DB954]/10 to-[#191414]/10 border border-[#1DB954]/20">
       <div className="flex items-center gap-3 mb-3">
@@ -14,6 +15,7 @@ export default function SpotifyEmbed({ trackId }: SpotifyEmbedProps) {
         <span className="text-sm font-medium text-[#09090B]">Listen while reading</span>
       </div>
       <iframe
+        title="Spotify track player"
         src={`https://open.spotify.com/embed/track/${trackId}?utm_source=generator&theme=0`}
         width="100%"
         height="152"
