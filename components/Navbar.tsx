@@ -1,130 +1,135 @@
-'use client';
-
+"use client";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-
-const items = [
-  { label: "Home", href: "/" },
-  { label: "About", href: "/#about" },
-  { label: "Experience", href: "/#experience" },
-  { label: "Blog", href: "/blog" },
-  { label: "Contact", href: "/#contact" },
+import { usePathname } from "next/navigation";
+import { useRef, useState } from "react";
+import LanguageSwitcher from "@/components/portfolio/LanguageSwitcher";
+import { portfolioHref, type PortfolioLocale } from "@/lib/portfolio-locale";
+import Icon from "@/components/portfolio/Icon";
+const navigation = [
+  { label: "Projects", zh: "作品", href: "/projects" },
+  { label: "About", zh: "關於", href: "/portfolio#about" },
+  { label: "Writing", zh: "文章", href: "/blog" },
+  { label: "Contact", zh: "聯絡", href: "/portfolio#contact" },
+  { label: "Personal website", zh: "個人網站", href: "/" },
 ];
-
-interface NavbarProps {
+const fallbackResume =
+  "https://drive.google.com/file/d/1ydMe7BYLDkXabV9UNFn5D9Nby9zaH6HA/view";
+export default function Navbar({
+  resumeUrl = fallbackResume,
+  locale = "en",
+}: {
   resumeUrl?: string;
-}
-
-export default function Navbar({ resumeUrl }: NavbarProps) {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-
-  const safeResumeUrl =
-    resumeUrl || "https://drive.google.com/file/d/1ydMe7BYLDkXabV9UNFn5D9Nby9zaH6HA/view";
-
-  useEffect(() => {
-    let raf = 0;
-    function check() {
-      setScrolled(window.scrollY > 16);
-    }
-    function onScroll() {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(check);
-    }
-    check();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      cancelAnimationFrame(raf);
-    };
-  }, []);
-
+  locale?: PortfolioLocale;
+}) {
+  const zh = locale === "zh-TW";
+  const items = navigation.map((item) => ({
+    ...item,
+    label: zh ? item.zh : item.label,
+  }));
+  const [open, setOpen] = useState(false);
+  const toggle = useRef<HTMLButtonElement>(null);
+  const pathname = usePathname();
   return (
     <header
-      className={`sticky top-0 z-50 -mt-4 transition-all duration-300 ${
-        scrolled
-          ? "bg-[var(--home-nav-bg)] backdrop-blur-xl py-3 shadow-[0_4px_24px_-12px_rgba(15,23,42,0.18)]"
-          : "bg-transparent backdrop-blur-md py-4"
-      }`}
+      className="site-header"
+      onKeyDown={(event) => {
+        if (event.key === "Escape") {
+          setOpen(false);
+          toggle.current?.focus();
+        }
+      }}
     >
-      <div className="flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-3 group cursor-pointer">
-          <div
-            className={`relative grid place-items-center rounded-full bg-[var(--home-text-strong)] text-[var(--home-bg)] font-bold transition-all duration-300 group-hover:scale-110 group-hover:rotate-6 ${
-              scrolled ? "h-9 w-9 text-sm" : "h-10 w-10"
-            }`}
-          >
-            <span className="absolute inset-0 rounded-full animate-ring-pulse pointer-events-none" />
-            Tim
-          </div>
-          <div
-            className={`font-semibold tracking-tight text-[var(--home-text-strong)] transition-all duration-300 group-hover:text-[var(--home-primary)] ${
-              scrolled ? "text-lg" : "text-xl"
-            }`}
-          >
-            CdyTim
-          </div>
-        </Link>
-
-        <div className="hidden md:flex items-center gap-8">
-          <nav className="flex items-center gap-8 text-sm text-[var(--home-text)] font-medium">
-            {items.map((it) => (
-              <Link
-                key={it.label}
-                href={it.href}
-                className="relative hover:text-[var(--home-text-strong)] transition-colors duration-200 cursor-pointer after:absolute after:bottom-[-4px] after:left-0 after:h-[2px] after:w-0 after:bg-[var(--home-primary)] after:transition-all after:duration-300 hover:after:w-full"
-              >
-                {it.label}
-              </Link>
-            ))}
-          </nav>
-
+      <Link
+        href={portfolioHref("/portfolio", locale)}
+        className="wordmark"
+        title={zh ? "作品集首頁" : "Portfolio home"}
+      >
+        <span className="wordmark-icon">
+          Tim<span>.</span>
+        </span>
+        <span className="wordmark-name">Ding-Yuan Chen</span>
+      </Link>
+      <nav
+        className="desktop-nav"
+        aria-label={zh ? "主要導覽" : "Main navigation"}
+      >
+        {items.map((item) => (
           <Link
-            href={safeResumeUrl}
-            target="_blank"
-            className="rounded-xl bg-[var(--home-primary)] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[var(--home-primary-hover)] hover:shadow-lg hover:shadow-blue-500/25 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer"
+            key={item.label}
+            href={portfolioHref(item.href, locale)}
+            aria-current={
+              (item.href === "/"
+                ? pathname === "/"
+                : pathname.startsWith(item.href)) && !item.href.includes("#")
+                ? "page"
+                : undefined
+            }
           >
-            Download CV
+            {item.label}
           </Link>
-        </div>
-
-        <button
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="md:hidden p-2 rounded-lg text-[var(--home-text)] hover:bg-[var(--home-surface-muted)] transition-colors"
-          aria-label="Toggle menu"
+        ))}
+        <a
+          className="nav-resume"
+          href={resumeUrl}
+          target="_blank"
+          rel="noreferrer"
         >
-          {mobileMenuOpen ? (
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          ) : (
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          )}
-        </button>
-      </div>
-
-      {mobileMenuOpen && (
-        <nav className="md:hidden mt-4 pb-4 space-y-3 border border-[var(--home-border)] rounded-2xl bg-[var(--home-surface)]/95 backdrop-blur-xl pt-4 animate-fade-in">
-          {items.map((it) => (
+          {zh ? "履歷" : "Resume"} <Icon name="external" />
+        </a>
+      </nav>
+      <LanguageSwitcher locale={locale} />
+      <button
+        ref={toggle}
+        type="button"
+        className="menu-toggle"
+        onClick={() => setOpen(!open)}
+        aria-label={
+          zh
+            ? open
+              ? "關閉選單"
+              : "開啟選單"
+            : open
+              ? "Close menu"
+              : "Open menu"
+        }
+        aria-expanded={open}
+        aria-controls="mobile-navigation"
+      >
+        <svg
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          aria-hidden="true"
+        >
+          <path d={open ? "M6 6l12 12M6 18 18 6" : "M4 7h16M4 12h16M4 17h16"} />
+        </svg>
+      </button>
+      {open && (
+        <nav
+          className="mobile-nav"
+          id="mobile-navigation"
+          aria-label={zh ? "行動版導覽" : "Mobile navigation"}
+        >
+          {items.map((item) => (
             <Link
-              key={it.label}
-              href={it.href}
-              onClick={() => setMobileMenuOpen(false)}
-              className="block px-4 py-2 rounded-lg text-[var(--home-text)] hover:bg-[var(--home-surface-muted)] hover:text-[var(--home-text-strong)] transition-all duration-200 cursor-pointer"
+              key={item.label}
+              href={portfolioHref(item.href, locale)}
+              onClick={() => setOpen(false)}
             >
-              {it.label}
+              {item.label}
             </Link>
           ))}
-          <Link
-            href={safeResumeUrl}
+          <a
+            href={resumeUrl}
             target="_blank"
-            onClick={() => setMobileMenuOpen(false)}
-            className="block mx-4 mt-2 text-center rounded-xl bg-[var(--home-primary)] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[var(--home-primary-hover)] transition-all duration-200 cursor-pointer"
+            rel="noreferrer"
+            onClick={() => setOpen(false)}
           >
-            Download CV
-          </Link>
+            {zh ? "履歷" : "Resume"} <Icon name="external" />
+          </a>
         </nav>
       )}
     </header>

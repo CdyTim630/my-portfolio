@@ -1,0 +1,56 @@
+# sigma / ToMyBaby: contributed-project review
+
+Reviewed 10 October 2026. Public repository inspection only: README, documentation and report source, selected implementation files, actual commit diffs, and repository screenshots. No account was used, no AI/TTS request was sent, and no deployed data or repository was modified.
+
+## Decision: a separate, well-supported project
+
+[`ntu-im-WebApp/sigma`](https://github.com/ntu-im-WebApp/sigma) is **ToMyBaby**, an AI conversation-practice application for an NTU Information Management Web App course project in May 2026. It is separate from EmploYA: different purpose, repository history, frontend and backend stack. The report’s [course and architecture description](https://github.com/ntu-im-WebApp/sigma/blob/02b325bf6c40ffbbc21ed9a1b5f7219196a00d98/docs/%E6%9C%9F%E6%9C%AB%E5%A0%B1%E5%91%8A.tex#L220-L262) and the [README](https://github.com/ntu-im-WebApp/sigma/blob/02b325bf6c40ffbbc21ed9a1b5f7219196a00d98/README.md) identify the product. A shared account address mentioned in the README does not make it the same project.
+
+Pinned reviewed head: [`02b325bf6c40ffbbc21ed9a1b5f7219196a00d98`](https://github.com/ntu-im-WebApp/sigma/tree/02b325bf6c40ffbbc21ed9a1b5f7219196a00d98). The default-branch GitHub author query returned 31 commits associated with `CdyTim630`; specific diffs provide the contribution evidence below. This count is context, not an ownership percentage or output-quality metric. Other authors also contribute significant database, backend, and chat fixes.
+
+**Recommendation:** add a separate archive entry now. There is enough code, attribution and real imagery for a future full case, particularly around speech-to-avatar integration, per-user persistence, and AI fallback behavior. It should rank above repository-name-only coursework entries.
+
+## What the application implements
+
+Users configure profiles and a conversation scenario, practice with a simulated counterpart, and receive six-axis feedback and suggested rewrites. Multiple sessions for the same counterpart can be aggregated into a report. Its current implementation combines React 18 / TypeScript / Vite, an Express API, Gemini, Recharts, browser speech APIs, Web Audio and Live2D rendering.
+
+The [current API selector](https://github.com/ntu-im-WebApp/sigma/blob/02b325bf6c40ffbbc21ed9a1b5f7219196a00d98/src/services/api.ts#L194-L213) chooses an HTTP backend or local mock. The README still describes a third, browser-direct Gemini mode and the corresponding client file remains, but the active selector at this revision does not select it. A portfolio case should explain the checked source rather than repeating that outdated three-mode claim.
+
+The backend has [JSON/PostgreSQL repository selection](https://github.com/ntu-im-WebApp/sigma/blob/02b325bf6c40ffbbc21ed9a1b5f7219196a00d98/server/src/db/index.ts), JWT-authenticated history routes, and [Gemini routes with rule-based fallback](https://github.com/ntu-im-WebApp/sigma/blob/02b325bf6c40ffbbc21ed9a1b5f7219196a00d98/server/src/routes/chat.ts). PostgreSQL is an implemented adapter, not merely a planned roadmap item. Deployment of each backend mode was not independently verified.
+
+## Personal contribution, grounded in authored diffs
+
+| Work                                      | Evidence                                                                                                             | Exact scope supported                                                                                                                                                                                                                       |
+| ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Authentication and repository abstraction | [CdyTim630 commit `dcc51c5`](https://github.com/ntu-im-WebApp/sigma/commit/dcc51c546b381cc9c9a6b90425ea9d6cb192d0fe) | Adds bcrypt/JWT auth, repository interfaces and JSON/PostgreSQL adapters, login/register UI, and changes history routes from global storage to methods scoped by `req.auth.sub`. Teammates subsequently extend the database implementation. |
+| Speech and animated mouth synchronization | [CdyTim630 commit `b4b0de6`](https://github.com/ntu-im-WebApp/sigma/commit/b4b0de62e0fe1b2bd53c29eb747cf273eae92f83) | Adds the Express Edge TTS proxy, browser voice service, microphone input integration, character voice profiles, and an audio-amplitude signal consumed by Live2D rendering.                                                                 |
+| Multi-session reports                     | [CdyTim630 commit `e4cbe17`](https://github.com/ntu-im-WebApp/sigma/commit/e4cbe17f711432443a747299ca18f71312ba3176) | Adds report aggregation, report page, report types and API method, plus entry points from history/analysis. This is deterministic aggregation plus generated narrative, not training a predictive model.                                    |
+| AI status and analysis waiting flow       | [CdyTim630 commit `f1c82e0`](https://github.com/ntu-im-WebApp/sigma/commit/f1c82e0158ee288fc5fa914414acf2ef29a41c20) | Introduces AI-status telemetry/display and a dedicated analyzing page. Current end-to-end fallback reporting has the limitations below.                                                                                                     |
+| Model naming compatibility                | [CdyTim630 commit `a486757`](https://github.com/ntu-im-WebApp/sigma/commit/a4867573b332fcca6be8234685b52d8937b2dceb) | Live2D compatibility changes for legacy parameter naming. This integrates third-party character models; it does not establish authorship of those models.                                                                                   |
+| Correct opening-turn behavior             | [CdyTim630 commit `02b325b`](https://github.com/ntu-im-WebApp/sigma/commit/02b325bf6c40ffbbc21ed9a1b5f7219196a00d98) | Keeps the conversation blank when the user should speak first, including continuation mode; avoids premature suggested replies for an empty conversation.                                                                                   |
+
+Suitable first-person summary: **“I implemented authentication and user-scoped history, multi-session report aggregation, and speech/Live2D integration, then iterated on conversation setup and AI-status feedback within the course team.”** Do not claim sole ownership of the whole application, all database work, or the external character assets.
+
+## Strong engineering stories for a future case
+
+1. **From sound to motion:** the [voice service](https://github.com/ntu-im-WebApp/sigma/blob/02b325bf6c40ffbbc21ed9a1b5f7219196a00d98/src/services/voice.ts#L195-L299) fetches the TTS audio as a blob, plays it through an audio element, and connects a Web Audio analyser. A low-frequency energy average drives a shared amplitude value, which [Live2DStage](https://github.com/ntu-im-WebApp/sigma/blob/02b325bf6c40ffbbc21ed9a1b5f7219196a00d98/src/components/chat/Live2DStage.tsx#L135-L175) maps to mouth parameters. The backend streams MP3 chunks, but the browser waits for the blob before playback, so do not call the whole path low-latency streaming playback.
+2. **Separating persistence from routes:** the history routes enforce authentication and pass the user ID into repository methods. The storage factory selects JSON for a local demo or PostgreSQL via configuration. This gives a concrete account of an interface boundary and an implemented migration path, without claiming production hardening.
+3. **Statistics before narrative:** [report aggregation](https://github.com/ntu-im-WebApp/sigma/blob/02b325bf6c40ffbbc21ed9a1b5f7219196a00d98/src/utils/reportAggregation.ts) computes per-axis averages/best scores, compares early and late sessions, groups recurring observations, and selects another scenario. A separate service generates narrative. The scoring rules are application heuristics, not validated measures of real interpersonal outcomes.
+4. **Turn ownership in a conversation UI:** the final authored fix is a concise before/after example: selecting “I speak first” previously still allowed an AI opener; the effect now waits for an actual user message and hides suggestions while the conversation is empty.
+
+## Evidence boundaries and observed gaps
+
+- No project test suite or CI configuration was found in the reviewed tree. Commit messages report historical smoke checks, but they were not rerun. No latency, accuracy, usage, or real-world outcome metric is independently supported.
+- The current HTTP client discards the server’s `x-ai-fallback` header. Its wrapper can therefore label a successful HTTP response as AI even when the backend supplied rule-based output. The report-generation catch also returns a mock report without recording a local-fallback event. Describe the telemetry work and this remaining gap honestly rather than claiming complete fallback transparency.
+- The voice selector uses local SpeechSynthesis when a remote backend is unavailable by configuration. A failed configured remote request currently ends quietly; it does not automatically rerun local synthesis despite the README’s broader fallback wording.
+- The auth documentation itself identifies localStorage bearer tokens and JSON files as demo compromises. The current PostgreSQL adapter disables TLS certificate verification for some hosted connection patterns. These are concrete production-readiness limitations, not reasons to erase the implementation from the portfolio.
+- The report labels itself “冠軍版”; this is a document-version label, not evidence of an award. No competition or award claim should be inferred.
+- Project source has no root license detected by GitHub metadata. The repository contains separately licensed Live2D and background assets; link the [asset credits](https://github.com/ntu-im-WebApp/sigma/blob/02b325bf6c40ffbbc21ed9a1b5f7219196a00d98/public/assets/CREDITS.md) and preserve attribution if screenshots are reused. Do not copy the character models into this portfolio.
+
+## Actual visuals and demo
+
+The repository provides five [product screenshots](https://github.com/ntu-im-WebApp/sigma/tree/02b325bf6c40ffbbc21ed9a1b5f7219196a00d98/docs/screenshots). The chat view and multi-session report were visually inspected; they show real application UI with sample conversation data. These are repository-provided captures, not screenshots generated by this audit. Sample scores and session counts are not product-usage metrics.
+
+The repository advertises [tomybaby.vercel.app](https://tomybaby.vercel.app). A read-only homepage request succeeded and returned ToMyBaby’s app shell/title during this review. That establishes frontend availability only; login, live Gemini, TTS, persistence, and the complete user flow were not exercised.
+
+Prepared bilingual archive object: `/tmp/sigma-entry.json`. The shared archive data remains untouched for the owning agent to integrate.

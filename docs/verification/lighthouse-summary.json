@@ -1,0 +1,102 @@
+{
+  "date": "2026-10-10",
+  "environment": "Local macOS arm64 production standalone server; no Supabase configuration; simulated mobile Lighthouse run per page. Not production field data.",
+  "pages": [
+    {
+      "page": "home",
+      "path": "/",
+      "fetchedAt": "2026-10-10T09:58:52.510Z",
+      "lighthouseVersion": "13.5.0",
+      "formFactor": "mobile",
+      "throttlingMethod": "simulate",
+      "scores": {
+        "performance": 95,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "first-contentful-paint": {
+          "value": 1367.1774,
+          "display": "1.4 s"
+        },
+        "largest-contentful-paint": {
+          "value": 2867.1774,
+          "display": "2.9 s"
+        },
+        "total-blocking-time": {
+          "value": 0,
+          "display": "0 ms"
+        },
+        "cumulative-layout-shift": {
+          "value": 0,
+          "display": "0"
+        }
+      }
+    },
+    {
+      "page": "projects",
+      "path": "/projects",
+      "fetchedAt": "2026-10-10T09:55:24.022Z",
+      "lighthouseVersion": "13.5.0",
+      "formFactor": "mobile",
+      "throttlingMethod": "simulate",
+      "scores": {
+        "performance": 98,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "first-contentful-paint": {
+          "value": 907.2683,
+          "display": "0.9 s"
+        },
+        "largest-contentful-paint": {
+          "value": 2462.2682999999997,
+          "display": "2.5 s"
+        },
+        "total-blocking-time": {
+          "value": 2.5,
+          "display": "0 ms"
+        },
+        "cumulative-layout-shift": {
+          "value": 0.01429961464712184,
+          "display": "0.014"
+        }
+      }
+    },
+    {
+      "page": "case",
+      "path": "/projects/employa",
+      "fetchedAt": "2026-10-10T09:55:57.394Z",
+      "lighthouseVersion": "13.5.0",
+      "formFactor": "mobile",
+      "throttlingMethod": "simulate",
+      "scores": {
+        "performance": 95,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "first-contentful-paint": {
+          "value": 1355.547,
+          "display": "1.4 s"
+        },
+        "largest-contentful-paint": {
+          "value": 2855.547,
+          "display": "2.9 s"
+        },
+        "total-blocking-time": {
+          "value": 2.5,
+          "display": "0 ms"
+        },
+        "cumulative-layout-shift": {
+          "value": 0.01278011458686947,
+          "display": "0.013"
+        }
+      }
+    }
+  ]
+}

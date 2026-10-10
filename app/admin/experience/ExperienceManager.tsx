@@ -33,27 +33,28 @@ export default function ExperienceManager({ initialExperiences }: ExperienceMana
   const [form, setForm] = useState(emptyForm);
   const [editForm, setEditForm] = useState<Omit<typeof emptyForm, "sort_order"> & { sort_order: number }>({ ...emptyForm });
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  async function requestExperience(url: string, method: string, body?: unknown) {
+    const response = await fetch(url, { method, headers: body ? { "Content-Type": "application/json" } : undefined, body: body ? JSON.stringify(body) : undefined });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || "Unable to save this change.");
+    return result;
+  }
 
   // ── 新增 ──────────────────────────────────────────
   async function handleAdd() {
     setSaving(true);
-    const body = {
-      ...form,
-      skills: form.skills.split(",").map((s) => s.trim()).filter(Boolean),
-      sort_order: experiences.length + 1,
-    };
-    const res = await fetch("/api/admin/experiences", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    if (res.ok) {
-      const newExp = await res.json();
-      setExperiences([...experiences, newExp]);
+    setError("");
+    try {
+      const newExp = await requestExperience("/api/admin/experiences", "POST", {
+        ...form, skills: form.skills.split(",").map((s) => s.trim()).filter(Boolean), sort_order: experiences.length + 1,
+      });
+      setExperiences((current) => [...current, newExp]);
       setForm(emptyForm);
       setShowAddForm(false);
-    }
-    setSaving(false);
+    } catch (failure) { setError(failure instanceof Error ? failure.message : "Unable to save this change."); }
+    finally { setSaving(false); }
   }
 
   // ── 開始編輯 ──────────────────────────────────────
@@ -72,35 +73,30 @@ export default function ExperienceManager({ initialExperiences }: ExperienceMana
   // ── 儲存編輯 ──────────────────────────────────────
   async function handleSaveEdit(id: number) {
     setSaving(true);
-    const body = {
-      ...editForm,
-      skills: editForm.skills.split(",").map((s) => s.trim()).filter(Boolean),
-    };
-    const res = await fetch(`/api/admin/experiences/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    if (res.ok) {
-      const updated = await res.json();
-      setExperiences(experiences.map((e) => (e.id === id ? updated : e)));
+    setError("");
+    try {
+      const updated = await requestExperience(`/api/admin/experiences/${id}`, "PATCH", {
+        ...editForm, skills: editForm.skills.split(",").map((s) => s.trim()).filter(Boolean),
+      });
+      setExperiences((current) => current.map((experience) => experience.id === id ? updated : experience));
       setEditingId(null);
-    }
-    setSaving(false);
+    } catch (failure) { setError(failure instanceof Error ? failure.message : "Unable to save this change."); }
+    finally { setSaving(false); }
   }
 
-  // ── 刪除 ──────────────────────────────────────────
   async function handleDelete(id: number) {
     if (!confirm("確定要刪除這筆 Experience 嗎？")) return;
-    const res = await fetch(`/api/admin/experiences/${id}`, { method: "DELETE" });
-    if (res.ok) {
-      setExperiences(experiences.filter((e) => e.id !== id));
-    }
+    setError("");
+    try {
+      await requestExperience(`/api/admin/experiences/${id}`, "DELETE");
+      setExperiences((current) => current.filter((experience) => experience.id !== id));
+    } catch (failure) { setError(failure instanceof Error ? failure.message : "Unable to delete this experience."); }
   }
 
   return (
-    <main className="min-h-screen bg-transparent">
+    <main id="main-content" className="min-h-screen bg-transparent">
       <div className="mx-auto max-w-4xl px-6 py-10">
+        {error && <p role="alert" className="mb-6 rounded-lg border border-red-300 bg-red-50 p-4 text-sm text-red-800">{error}</p>}
         {/* Header */}
         <header className="flex items-center justify-between mb-10">
           <div className="flex items-center gap-4">

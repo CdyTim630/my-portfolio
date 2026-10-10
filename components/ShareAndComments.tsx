@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { getSupabaseConfig } from '@/lib/supabase/config';
+import { useMemo } from 'react';
 
 interface Comment {
   id: string;
@@ -15,8 +17,9 @@ interface ShareAndCommentsProps {
   postTitle: string;
 }
 
-export default function ShareAndComments({ postId, postTitle }: ShareAndCommentsProps) {
-  const supabase = createClient();
+export default function ShareAndComments({ postId }: ShareAndCommentsProps) {
+  const supabase = useMemo(() => getSupabaseConfig() ? createClient() : null, []);
+  const [commentError, setCommentError] = useState("");
   const [comments, setComments] = useState<Comment[]>([]);
   const [isLoadingComments, setIsLoadingComments] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -30,6 +33,8 @@ export default function ShareAndComments({ postId, postTitle }: ShareAndComments
   // 載入留言
   useEffect(() => {
     async function loadComments() {
+      if (!supabase) { setCommentError("Comments are temporarily unavailable."); setIsLoadingComments(false); return; }
+      try {
       const { data, error } = await supabase
         .from('comments')
         .select('*')
@@ -39,10 +44,12 @@ export default function ShareAndComments({ postId, postTitle }: ShareAndComments
       if (!error && data) {
         setComments(data);
       }
-      setIsLoadingComments(false);
+      if (error) setCommentError("Comments could not be loaded. Please try again later.");
+      } catch { setCommentError("Comments could not be loaded. Please try again later."); }
+      finally { setIsLoadingComments(false); }
     }
     loadComments();
-  }, [postId]);
+  }, [postId, supabase]);
 
   // 複製連結
   const handleCopyLink = async () => {
@@ -57,18 +64,17 @@ export default function ShareAndComments({ postId, postTitle }: ShareAndComments
   };
 
   // 分享到 Instagram (透過 story 連結)
-  const handleShareInstagram = () => {
+  const handleShareInstagram = async () => {
     const url = window.location.href;
     // Instagram 不支援直接網頁分享，但可以複製連結提示用戶手動分享
-    navigator.clipboard.writeText(url);
-    alert('連結已複製！請在 Instagram 貼上分享 ✨');
+    try { await navigator.clipboard.writeText(url); alert('連結已複製！請在 Instagram 貼上分享 ✨'); } catch { setCommentError('Unable to copy. Copy this page URL from your browser.'); }
   };
 
   // 分享到 LinkedIn
   const handleShareLinkedIn = () => {
     const url = window.location.href;
     const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
-    window.open(linkedInUrl, '_blank', 'width=600,height=600');
+    window.open(linkedInUrl, '_blank', 'noopener,noreferrer,width=600,height=600');
   };
 
   // 提交留言
@@ -79,6 +85,8 @@ export default function ShareAndComments({ postId, postTitle }: ShareAndComments
       return;
     }
 
+    if (!supabase) { setCommentError("Comments are temporarily unavailable."); return; }
+    if (form.authorName.trim().length > 50 || form.content.trim().length > 500) { setCommentError("Use up to 50 characters for your name and 500 for your comment."); return; }
     setIsSubmitting(true);
     try {
       const { data, error } = await supabase
@@ -164,6 +172,7 @@ export default function ShareAndComments({ postId, postTitle }: ShareAndComments
             留言 <span className="text-[#71717A] font-normal text-lg">({comments.length})</span>
           </h3>
           <button
+            disabled={!supabase}
             onClick={() => setShowCommentForm(!showCommentForm)}
             className="px-5 py-2.5 rounded-xl bg-[#2563EB] text-white font-semibold hover:bg-[#1d4ed8] hover:shadow-lg hover:shadow-blue-500/25 hover:-translate-y-0.5 transition-all duration-200"
           >
@@ -171,14 +180,16 @@ export default function ShareAndComments({ postId, postTitle }: ShareAndComments
           </button>
         </div>
 
+        {commentError && <p role="status" className="mb-5 rounded-lg border border-[var(--home-border)] p-4 text-sm">{commentError}</p>}
         {/* 留言表單 */}
         {showCommentForm && (
           <form onSubmit={handleSubmitComment} className="mb-8 p-6 rounded-2xl bg-[#F4F4F5] border border-[#18181B]/10 space-y-4 animate-fade-in">
             <div>
-              <label className="block text-sm font-medium text-[#3F3F46] mb-2">
+              <label htmlFor="comment-author" className="block text-sm font-medium text-[#3F3F46] mb-2">
                 顯示名稱
               </label>
               <input
+                id="comment-author"
                 type="text"
                 value={form.authorName}
                 onChange={(e) => setForm({ ...form, authorName: e.target.value })}
@@ -189,10 +200,11 @@ export default function ShareAndComments({ postId, postTitle }: ShareAndComments
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-[#3F3F46] mb-2">
+              <label htmlFor="comment-content" className="block text-sm font-medium text-[#3F3F46] mb-2">
                 留言內容
               </label>
               <textarea
+                id="comment-content"
                 value={form.content}
                 onChange={(e) => setForm({ ...form, content: e.target.value })}
                 placeholder="寫下你的想法..."

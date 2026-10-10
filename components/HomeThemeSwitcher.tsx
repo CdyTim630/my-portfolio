@@ -1,103 +1,97 @@
 "use client";
-
-import { ReactNode, useEffect, useRef, useState } from "react";
-
-type HomeThemeMode = "light" | "color" | "dark";
-
-interface HomeThemeSwitcherProps {
+import { type ReactNode, useEffect, useState } from "react";
+import Icon from "@/components/portfolio/Icon";
+import localFont from "next/font/local";
+import "@/components/portfolio/portfolio.css";
+import "@/components/portfolio/projects.css";
+const portfolioHeading = localFont({
+  src: [
+    {
+      path: "../public/fonts/portfolio/archivo-bold-latin.woff2",
+      weight: "700",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/portfolio/archivo-black-latin.woff2",
+      weight: "900",
+      style: "normal",
+    },
+  ],
+  variable: "--font-portfolio-heading",
+  display: "swap",
+  preload: false,
+});
+const portfolioBody = localFont({
+  src: "../public/fonts/portfolio/space-grotesk-variable-latin.woff2",
+  weight: "300 700",
+  style: "normal",
+  variable: "--font-portfolio-body",
+  display: "swap",
+});
+import type { PortfolioLocale } from "@/lib/portfolio-locale";
+type Theme = "light" | "dark" | "color";
+export default function HomeThemeSwitcher({
+  children,
+  locale = "en",
+}: {
   children: ReactNode;
-}
-
-const modes: Array<{ id: HomeThemeMode; label: string }> = [
-  { id: "light", label: "淺色" },
-  { id: "color", label: "彩色" },
-  { id: "dark", label: "深色" },
-];
-
-export default function HomeThemeSwitcher({ children }: HomeThemeSwitcherProps) {
-  const wrapperRef = useRef<HTMLDivElement>(null);
-  const initializedRef = useRef(false);
-  const [mode, setMode] = useState<HomeThemeMode>("light");
-  const [open, setOpen] = useState(false);
-
+  locale?: PortfolioLocale;
+}) {
+  const zh = locale === "zh-TW";
+  const [mode, setMode] = useState<Theme>("light");
   useEffect(() => {
-    const frame = window.requestAnimationFrame(() => {
-      const saved = localStorage.getItem("home-theme-mode") as HomeThemeMode | null;
-      const nextMode =
-        saved && modes.some((item) => item.id === saved) ? saved : "light";
-
-      initializedRef.current = true;
-      setMode(nextMode);
-      document.documentElement.style.colorScheme =
-        nextMode === "dark" ? "dark" : "light";
-    });
-
-    return () => window.cancelAnimationFrame(frame);
-  }, []);
-
-  useEffect(() => {
-    if (!initializedRef.current) return;
-    localStorage.setItem("home-theme-mode", mode);
-    document.documentElement.style.colorScheme = mode === "dark" ? "dark" : "light";
-  }, [mode]);
-
-  useEffect(() => {
-    const onPointerDown = (event: PointerEvent) => {
-      if (!wrapperRef.current?.contains(event.target as Node)) {
-        setOpen(false);
+    const previousColorScheme = document.documentElement.style.colorScheme;
+    const frame = requestAnimationFrame(() => {
+      let saved: string | null = null;
+      try {
+        saved = localStorage.getItem("home-theme-mode");
+      } catch {
+        /* Storage can be disabled. */
       }
+      const next =
+        saved === "dark" || saved === "color" || saved === "light"
+          ? saved
+          : window.matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light";
+      setMode(next);
+      document.documentElement.style.colorScheme =
+        next === "dark" ? "dark" : "light";
+    });
+    return () => {
+      cancelAnimationFrame(frame);
+      document.documentElement.style.colorScheme = previousColorScheme;
     };
-
-    window.addEventListener("pointerdown", onPointerDown);
-    return () => window.removeEventListener("pointerdown", onPointerDown);
   }, []);
-
-  const panelClasses = open
-    ? "opacity-100 translate-y-0 pointer-events-auto"
-    : "opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto group-focus-within:opacity-100 group-focus-within:translate-y-0 group-focus-within:pointer-events-auto";
-
+  function changeTheme(next: Theme) {
+    setMode(next);
+    document.documentElement.style.colorScheme =
+      next === "dark" ? "dark" : "light";
+    try {
+      localStorage.setItem("home-theme-mode", next);
+    } catch {
+      /* Theme works without persistence. */
+    }
+  }
   return (
-    <div className="home-theme relative text-[var(--home-text)] transition-colors duration-300" data-mode={mode}>
-      <div aria-hidden className="home-theme-ambient" />
-
-      <div ref={wrapperRef} className="group fixed bottom-5 right-5 z-40">
-        <div
-          className={`mb-2 flex justify-end gap-1.5 rounded-2xl border border-[var(--home-border)] bg-[var(--home-surface)]/92 p-1.5 shadow-lg backdrop-blur-md transition-all duration-200 ${panelClasses}`}
+    <div
+      className={`home-theme portfolio-theme ${portfolioHeading.variable} ${portfolioBody.variable}`}
+      data-mode={mode}
+      lang={locale}
+    >
+      {children}
+      <div className="theme-control">
+        <Icon name="sun" />
+        <select
+          aria-label={zh ? "色彩主題" : "Color theme"}
+          value={mode}
+          onChange={(event) => changeTheme(event.target.value as Theme)}
         >
-          {modes.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => {
-                setMode(item.id);
-                setOpen(false);
-              }}
-              data-active={mode === item.id}
-              className="rounded-full px-2.5 py-1 text-[11px] font-semibold text-[var(--home-text)] transition-all duration-200 hover:bg-[var(--home-surface-muted)] data-[active=true]:bg-[var(--home-primary)] data-[active=true]:text-white"
-            >
-              {item.label}
-            </button>
-          ))}
-        </div>
-
-        <button
-          type="button"
-          onClick={() => setOpen((prev) => !prev)}
-          aria-label="Open theme selector"
-          className="ml-auto grid h-10 w-10 place-items-center rounded-full border border-[var(--home-border)] bg-[var(--home-surface)]/94 text-[var(--home-text-strong)] shadow-lg backdrop-blur-md transition-all duration-200 hover:scale-105 hover:border-[var(--home-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--home-primary)]"
-        >
-          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 3v2m0 14v2M5.64 5.64l1.42 1.42m9.88 9.88l1.42 1.42M3 12h2m14 0h2M5.64 18.36l1.42-1.42m9.88-9.88l1.42-1.42M12 7a5 5 0 100 10 5 5 0 000-10z"
-            />
-          </svg>
-        </button>
+          <option value="light">{zh ? "淺色" : "Light"}</option>
+          <option value="dark">{zh ? "深色" : "Dark"}</option>
+          <option value="color">{zh ? "繽紛" : "Color"}</option>
+        </select>
       </div>
-
-      <div className="relative z-10">{children}</div>
     </div>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { User } from "@supabase/supabase-js";
 
@@ -29,15 +30,18 @@ export default function AdminDashboard({
   commentsCount = 0,
   diariesCount = 0,
 }: AdminDashboardProps) {
-  const supabase = createClient();
+  const router = useRouter();
   const [posts, setPosts] = useState(initialPosts);
 
   async function handleLogout() {
+    const supabase = createClient();
     await supabase.auth.signOut();
-    window.location.assign("/login");
+    router.push("/login");
+    router.refresh();
   }
 
   async function togglePublish(postId: number, currentStatus: boolean) {
+    const supabase = createClient();
     const { error } = await supabase
       .from("posts")
       .update({ published: !currentStatus })
@@ -50,7 +54,7 @@ export default function AdminDashboard({
 
   async function deletePost(postId: number) {
     if (!confirm("確定要刪除這篇文章嗎？")) return;
-
+    const supabase = createClient();
     const { error } = await supabase.from("posts").delete().eq("id", postId);
 
     if (!error) {
@@ -59,9 +63,9 @@ export default function AdminDashboard({
   }
 
   return (
-    <main className="min-h-screen bg-transparent">
+    <main id="main-content" className="min-h-screen bg-transparent">
       <div className="mx-auto max-w-6xl px-6 py-10">
-        <header className="mb-8 flex items-center justify-between">
+        <header className="mb-8 flex flex-wrap items-center justify-between gap-5">
           <div className="flex items-center gap-4">
             <Link href="/" className="flex items-center gap-3 group">
               <div className="grid h-10 w-10 place-items-center rounded-full bg-[#18181B] font-bold text-white transition-transform duration-200 group-hover:scale-110">
@@ -70,8 +74,8 @@ export default function AdminDashboard({
               <span className="text-xl font-semibold text-[#09090B]">Admin Dashboard</span>
             </Link>
           </div>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-[#71717A]">{user.email}</span>
+          <div className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2">
+            <span className="max-w-full break-all text-sm text-[#71717A]">{user.email}</span>
             <Link href="/blog" className="text-sm text-[#3F3F46] transition-colors hover:text-[#2563EB]">
               查看部落格
             </Link>
@@ -84,7 +88,19 @@ export default function AdminDashboard({
           </div>
         </header>
 
-        <div className="mb-8 grid grid-cols-2 gap-6 md:grid-cols-4 lg:grid-cols-5">
+        <Link
+          href="/admin/projects"
+          className="group relative mb-8 flex flex-col gap-6 overflow-hidden rounded-3xl border border-[#DCD4F1] bg-gradient-to-br from-[#F3EFFF] via-[#F6F3FC] to-[#EAF1FF] p-6 transition-shadow hover:shadow-lg sm:flex-row sm:items-center sm:justify-between sm:p-8"
+        >
+          <div className="relative z-10 min-w-0">
+            <p className="text-[10px] font-semibold tracking-[0.22em] text-[#8873B4]">PROJECT STUDIO / 作品編輯</p>
+            <h2 className="mt-3 text-2xl font-semibold tracking-tight text-[#4F4275]">作品工作室</h2>
+            <p className="mt-2 max-w-lg text-sm leading-7 text-[#80708F]">編輯專案內容、圖片與展示設定。</p>
+          </div>
+          <span className="relative z-10 inline-flex shrink-0 items-center justify-center gap-6 self-start rounded-xl border border-[#DDD2F0] bg-white/75 px-5 py-3 text-sm font-medium text-[#7860A6] transition-colors group-hover:bg-white sm:self-center">進入工作室 <span className="text-lg" aria-hidden="true">↗</span></span>
+        </Link>
+
+        <div className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-5">
           <div className="rounded-2xl border border-[#18181B]/10 bg-white p-6 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
             <div className="text-3xl font-black text-[#09090B]">{posts.length}</div>
             <div className="mt-1 text-sm text-[#71717A]">總文章數</div>

@@ -1,6 +1,5 @@
-import { redirect } from "next/navigation";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
+import { requireAdminPage } from "@/lib/admin-auth";
 import AnalyticsChart from "./AnalyticsChart";
 
 // ─────────────────────────────────────────────
@@ -15,12 +14,7 @@ function detectDevice(ua: string): "桌機" | "手機" | "平板" {
 }
 
 export default async function AnalyticsPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) redirect("/login");
+  const { supabase } = await requireAdminPage();
 
   // ── 時間基準 ──────────────────────────────
   const now = new Date();
@@ -143,7 +137,7 @@ export default async function AnalyticsPage() {
   };
 
   return (
-    <main className="min-h-screen bg-transparent">
+    <main id="main-content" className="min-h-screen bg-transparent">
       <div className="mx-auto max-w-6xl px-6 py-10">
 
         {/* ── Header ── */}

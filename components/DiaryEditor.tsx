@@ -3,9 +3,10 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import MarkdownContent from "@/components/MarkdownContent";
+import { validateImageFile } from "@/lib/validation";
 import SpotifyEmbed from "@/components/SpotifyEmbed";
 
 interface DiaryFormState {
@@ -74,6 +75,7 @@ export default function DiaryEditor({ mode, diaryId, initial }: DiaryEditorProps
   const supabase = createClient();
 
   const [isSaving, setIsSaving] = useState(false);
+  const [savedDiaryId, setSavedDiaryId] = useState<number | null>(diaryId ?? null);
   const [isUploading, setIsUploading] = useState(false);
   const [categories, setCategories] = useState<Array<{ id: string; name: string }>>([]);
   const [publishCategory, setPublishCategory] = useState<string>("");
@@ -155,7 +157,8 @@ export default function DiaryEditor({ mode, diaryId, initial }: DiaryEditorProps
         alert("檔案大小為 0，請重新選擇圖片");
         return null;
       }
-      const fileExt = file.name.split(".").pop();
+      validateImageFile(file);
+      const fileExt = file.type.split("/")[1];
       const fileName = `${crypto.randomUUID()}.${fileExt}`;
       const filePath = `diary/${fileName}`;
       const { data, error } = await supabase.storage
@@ -173,6 +176,9 @@ export default function DiaryEditor({ mode, diaryId, initial }: DiaryEditorProps
         .from("blog-images")
         .getPublicUrl(data.path);
       return publicData.publicUrl;
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "圖片上傳失敗");
+      return null;
     } finally {
       setIsUploading(false);
     }
@@ -267,7 +273,7 @@ export default function DiaryEditor({ mode, diaryId, initial }: DiaryEditorProps
       }
 
       // ---- Step 1: 寫入 / 更新 diary 本身 ----
-      let currentDiaryId = diaryId ?? null;
+      let currentDiaryId = savedDiaryId;
       const diaryPayload = {
         title: form.title,
         content: form.content,
@@ -278,7 +284,7 @@ export default function DiaryEditor({ mode, diaryId, initial }: DiaryEditorProps
         entry_date: form.entryDate,
       };
 
-      if (mode === "new") {
+      if (!currentDiaryId) {
         const { data, error } = await supabase
           .from("diaries")
           .insert({ ...diaryPayload, author_id: user.id })
@@ -289,11 +295,12 @@ export default function DiaryEditor({ mode, diaryId, initial }: DiaryEditorProps
           return;
         }
         currentDiaryId = data.id;
-      } else if (mode === "edit" && diaryId) {
+        setSavedDiaryId(data.id);
+      } else {
         const { error } = await supabase
           .from("diaries")
           .update(diaryPayload)
-          .eq("id", diaryId);
+          .eq("id", currentDiaryId);
         if (error) {
           alert("更新失敗：" + error.message);
           return;
@@ -315,45 +322,36 @@ export default function DiaryEditor({ mode, diaryId, initial }: DiaryEditorProps
           author_id: user.id,
         };
 
-        if (form.publishedPostId) {
-          const { error } = await supabase
-            .from("posts")
-            .update(postPayload)
-            .eq("id", form.publishedPostId);
-          if (error) {
-            alert("更新已發布文章失敗：" + error.message);
+        let publishedPostId = form.publishedPostId;
+        if (publishedPostId) {
+          const { data: updatedPost, error } = await supabase.from("posts").update(postPayload).eq("id", publishedPostId).select("id").maybeSingle();
+          if (error || !updatedPost) {
+            alert("更新已發布文章失敗，日記已保存。請重新載入後再試。");
             return;
           }
         } else {
-          const { data: postRow, error } = await supabase
-            .from("posts")
-            .insert(postPayload)
-            .select("id")
-            .single();
+          const { data: postRow, error } = await supabase.from("posts").insert(postPayload).select("id").single();
           if (error || !postRow) {
-            alert("發布到 Blog 失敗：" + (error?.message ?? "unknown"));
+            alert("發布到 Blog 失敗，日記已保存。請稍後再試。");
             return;
           }
-          if (currentDiaryId) {
-            await supabase
-              .from("diaries")
-              .update({
-                is_published_to_blog: true,
-                published_post_id: postRow.id,
-              })
-              .eq("id", currentDiaryId);
-          }
-          setForm((f) => ({
-            ...f,
-            isPublishedToBlog: true,
-            publishedPostId: postRow.id,
-          }));
+          publishedPostId = postRow.id;
+          // Retain the ID before the second write, so retry does not create a duplicate post.
+          setForm((f) => ({ ...f, publishedPostId }));
         }
+        const { error: linkError } = await supabase.from("diaries").update({ is_published_to_blog: true, published_post_id: publishedPostId }).eq("id", currentDiaryId);
+        if (linkError) {
+          alert("文章已發布，但日記連結更新失敗。請留在此頁重試，避免重複建立文章。");
+          return;
+        }
+        setForm((f) => ({ ...f, isPublishedToBlog: true, publishedPostId }));
       }
 
       alert(publishToBlog ? "已儲存並同步到 Blog" : "已儲存");
       router.push("/admin/diary");
       router.refresh();
+    } catch {
+      alert("儲存未完成。請保留此頁內容，稍後重試。");
     } finally {
       setIsSaving(false);
     }
@@ -373,22 +371,25 @@ export default function DiaryEditor({ mode, diaryId, initial }: DiaryEditorProps
         alert("下架失敗：" + postErr.message);
         return;
       }
-      if (diaryId) {
-        await supabase
+      if (savedDiaryId) {
+        const { error: linkError } = await supabase
           .from("diaries")
           .update({ is_published_to_blog: false, published_post_id: null })
-          .eq("id", diaryId);
+          .eq("id", savedDiaryId);
+        if (linkError) { alert("文章已下架，但日記狀態更新失敗。請重新載入後檢查。"); return; }
       }
       setForm((f) => ({ ...f, isPublishedToBlog: false, publishedPostId: null }));
       alert("已從 Blog 下架");
       router.refresh();
+    } catch {
+      alert("下架未完成。請稍後重試。");
     } finally {
       setIsSaving(false);
     }
   }
 
   return (
-    <main className="min-h-screen bg-transparent">
+    <main id="main-content" className="min-h-screen bg-transparent">
       <div className="mx-auto max-w-7xl px-6 py-6">
         <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
           <div className="flex items-center gap-4">
@@ -510,9 +511,10 @@ export default function DiaryEditor({ mode, diaryId, initial }: DiaryEditorProps
                 />
                 <label className="px-3 py-2.5 rounded-xl bg-[var(--home-surface-muted)] text-[var(--home-text)] font-medium hover:bg-[var(--home-border)] transition-colors cursor-pointer text-sm">
                   {isUploading ? "上傳中…" : "上傳"}
-                  <input type="file" accept="image/*" onChange={handleCoverUpload} className="hidden" disabled={isUploading} />
+                  <input type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif" onChange={handleCoverUpload} className="hidden" disabled={isUploading} />
                 </label>
               </div>
+              <p className="mt-2 text-xs text-[var(--home-muted)]">圖片使用公開連結，即使日記未發布，持有連結的人仍可查看。請勿上傳機密圖片。</p>
             </div>
 
             <div className="lg:col-span-2">
@@ -580,7 +582,7 @@ export default function DiaryEditor({ mode, diaryId, initial }: DiaryEditorProps
 
           {form.coverImage && (
             <div className="mt-3 rounded-xl overflow-hidden border border-[var(--home-border)] max-w-xs">
-              <img src={form.coverImage} alt="cover" className="w-full h-24 object-cover" />
+              <Image width={800} height={450} unoptimized src={form.coverImage} alt="cover" className="w-full h-24 object-cover" />
             </div>
           )}
 
@@ -671,7 +673,7 @@ export default function DiaryEditor({ mode, diaryId, initial }: DiaryEditorProps
                 </div>
               )}
               {form.content ? (
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>{form.content}</ReactMarkdown>
+                <MarkdownContent>{form.content}</MarkdownContent>
               ) : (
                 <p className="text-[var(--home-muted-soft)] text-sm not-prose">開始寫，預覽會在這裡同步出現…</p>
               )}

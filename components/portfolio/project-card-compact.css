@@ -1,0 +1,194 @@
+/* Quiet cards keep the project content and real imagery in focus. */
+.portfolio-theme .work-card.compact-card {
+  border-color: var(--home-border);
+  border-radius: 18px;
+  box-shadow: none;
+}
+.portfolio-theme .work-card.compact-card:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--home-primary) 30%, var(--home-border));
+  box-shadow: 0 12px 24px rgb(30 30 50 / 4%);
+}
+.portfolio-theme[data-mode="light"] .work-card.compact-card {
+  border-radius: 16px;
+  box-shadow: var(--work-shadow);
+}
+.portfolio-theme[data-mode="light"] .work-card.compact-card:hover {
+  border-color: #a5bff7;
+  box-shadow: 0 22px 44px -24px rgb(37 99 235 / 22%);
+}
+.portfolio-theme[data-mode="light"] .work-card.compact-card .work-card-title {
+  transition: color 180ms ease;
+}
+.portfolio-theme[data-mode="light"] .work-card.compact-card .work-card-title a:hover {
+  color: var(--home-primary);
+}
+.portfolio-theme[data-mode="light"] .work-card.compact-card .work-card-summary {
+  font-size: 14px;
+}
+.portfolio-theme[data-mode="light"] .work-card.compact-card :is(.work-card-meta, .work-tags li, .work-card-links a) {
+  font-size: 12px;
+}
+.portfolio-theme .work-card.compact-card .work-card-body {
+  padding: 24px;
+}
+.portfolio-theme .work-card.compact-card .work-card-meta {
+  font-size: 11px;
+  letter-spacing: 0;
+  font-weight: 500;
+  text-transform: none;
+}
+.portfolio-theme .work-card.compact-card .work-card-title {
+  margin: 10px 0 12px;
+  font-size: clamp(21px, 2vw, 25px);
+  letter-spacing: -0.025em;
+  line-height: 1.35;
+}
+.portfolio-theme .work-card.compact-card .work-card-summary {
+  font-size: 13px;
+  line-height: 1.8;
+}
+.portfolio-theme .work-card.compact-card .work-tags {
+  gap: 5px 13px;
+  margin: 18px 0 23px;
+}
+.portfolio-theme .work-card.compact-card .work-tags li {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  font-family: var(--font-portfolio-body), sans-serif;
+  font-size: 11px;
+}
+.portfolio-theme .work-card.compact-card .work-card-links {
+  padding-top: 16px;
+}
+.portfolio-theme .work-card.compact-card .work-card-links a {
+  min-height: 24px;
+}
+.portfolio-theme .work-visual.work-visual-clean {
+  display: grid;
+  align-content: center;
+  gap: 0;
+  min-height: 240px;
+  padding: 32px;
+  border-bottom: 1px solid var(--home-border);
+  background: color-mix(in srgb, var(--home-primary) 4%, var(--home-surface));
+}
+.portfolio-theme .work-visual.work-visual-clean::before,
+.portfolio-theme .work-visual.work-visual-clean::after {
+  content: none;
+}
+.portfolio-theme .work-visual-clean .work-system {
+  --system-gap: 12px;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  align-content: center;
+}
+.portfolio-theme .work-visual-clean .work-system-node {
+  min-height: 68px;
+  padding: 12px 8px;
+  border: 1px solid var(--home-border);
+  border-radius: 10px;
+  background: var(--home-surface);
+  box-shadow: none;
+  color: var(--home-text-strong);
+}
+.portfolio-theme .work-visual-clean .work-system-node strong {
+  margin: 0;
+  text-wrap: balance;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.7;
+}
+.portfolio-theme .work-visual-clean .work-system-node-2 {
+  background: color-mix(in srgb, var(--home-primary) 8%, var(--home-surface));
+  border-color: color-mix(in srgb, var(--home-primary) 20%, var(--home-border));
+}
+.portfolio-theme .work-visual-clean .work-system-bridge {
+  padding: 6px 12px;
+  border-color: var(--home-border);
+  border-radius: 7px;
+  font-size: 10px;
+}
+.portfolio-theme .work-visual.work-visual-clean.work-visual-media {
+  padding: 0;
+  min-height: 0;
+}
+.portfolio-theme .work-cover-media {
+  width: 100%;
+  overflow: hidden;
+}
+.portfolio-theme .work-cover-media .work-screenshot {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 480px;
+  object-fit: cover;
+  object-position: top;
+}
+.portfolio-theme .work-cover-caption {
+  margin: 0;
+  padding: 12px 18px;
+  color: var(--home-muted);
+  font-size: 11px;
+  line-height: 1.7;
+  background: var(--home-surface);
+}
+.portfolio-theme .work-visual.work-visual-clean.work-visual-compact {
+  height: 208px;
+  min-height: 208px;
+  padding: 22px;
+}
+.portfolio-theme .work-visual-clean.work-visual-compact.work-visual-media {
+  padding: 0;
+}
+.portfolio-theme .work-visual-compact .work-cover-media,
+.portfolio-theme .work-visual-compact .work-cover-media .work-screenshot {
+  height: 208px;
+}
+.portfolio-theme .work-cover-composition {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 140px;
+}
+.portfolio-theme .work-cover-composition i {
+  width: 66px;
+  height: 86px;
+  border: 1px solid color-mix(in srgb, var(--home-primary) 30%, var(--home-border));
+  border-radius: 10px;
+  background: var(--home-surface);
+}
+.portfolio-theme .work-cover-composition i + i {
+  margin-left: -18px;
+}
+.portfolio-theme .work-cover-composition i:nth-child(2) {
+  height: 106px;
+  z-index: 1;
+  background: color-mix(in srgb, var(--home-primary) 8%, var(--home-surface));
+}
+.portfolio-theme .case-study-collection .projects-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+@media (max-width: 1020px) {
+  .portfolio-theme .case-study-collection .projects-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 760px) {
+  .portfolio-theme .case-study-collection .projects-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .portfolio-theme .work-card.compact-card .work-card-body {
+    padding: 22px;
+  }
+  .portfolio-theme .work-visual.work-visual-clean {
+    padding: 22px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .portfolio-theme .work-card.compact-card:hover {
+    transform: none;
+  }
+}

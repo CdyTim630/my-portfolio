@@ -3,9 +3,10 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from "next/image";
 import { createClient } from '@/lib/supabase/client';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
+import MarkdownContent from "@/components/MarkdownContent";
+import { validateImageFile } from "@/lib/validation";
 
 export default function NewPostPage() {
   const router = useRouter();
@@ -33,7 +34,7 @@ export default function NewPostPage() {
   const handleEditorScroll = useCallback(() => {
     if (isScrollingRef.current === 'preview') return;
     isScrollingRef.current = 'editor';
-    
+
     const editor = editorRef.current;
     const preview = previewRef.current;
     if (!editor || !preview) return;
@@ -41,13 +42,13 @@ export default function NewPostPage() {
     // 計算編輯器的滾動比例
     const editorScrollHeight = editor.scrollHeight - editor.clientHeight;
     if (editorScrollHeight <= 0) return;
-    
+
     const scrollRatio = editor.scrollTop / editorScrollHeight;
-    
+
     // 應用到預覽區
     const previewScrollHeight = preview.scrollHeight - preview.clientHeight;
     const targetScrollTop = scrollRatio * previewScrollHeight;
-    
+
     // 使用平滑滾動
     preview.scrollTo({
       top: targetScrollTop,
@@ -66,7 +67,7 @@ export default function NewPostPage() {
   const handlePreviewScroll = useCallback(() => {
     if (isScrollingRef.current === 'editor') return;
     isScrollingRef.current = 'preview';
-    
+
     const editor = editorRef.current;
     const preview = previewRef.current;
     if (!editor || !preview) return;
@@ -74,13 +75,13 @@ export default function NewPostPage() {
     // 計算預覽區的滾動比例
     const previewScrollHeight = preview.scrollHeight - preview.clientHeight;
     if (previewScrollHeight <= 0) return;
-    
+
     const scrollRatio = preview.scrollTop / previewScrollHeight;
-    
+
     // 應用到編輯器
     const editorScrollHeight = editor.scrollHeight - editor.clientHeight;
     const targetScrollTop = scrollRatio * editorScrollHeight;
-    
+
     editor.scrollTo({
       top: targetScrollTop,
       behavior: 'auto'
@@ -151,22 +152,23 @@ export default function NewPostPage() {
       }
     }
     loadCategories();
-  }, []);
+  }, [supabase]);
 
   // 上傳圖片到 Supabase Storage
   const uploadImage = async (file: File): Promise<string | null> => {
     try {
       setIsUploading(true);
-      
+
       // 檢查檔案
       console.log('準備上傳檔案:', file.name, file.size, file.type);
-      
+
       if (file.size === 0) {
         alert('檔案大小為 0，請重新選擇圖片');
         return null;
       }
-      
-      const fileExt = file.name.split('.').pop();
+
+      validateImageFile(file);
+      const fileExt = file.type.split("/")[1];
       const fileName = `${crypto.randomUUID()}.${fileExt}`;
       const filePath = `images/${fileName}`;
 
@@ -243,7 +245,7 @@ export default function NewPostPage() {
       const item = items[i];
       if (item.type.indexOf('image') !== -1) {
         e.preventDefault(); // 防止預設貼上行為
-        
+
         const file = item.getAsFile();
         if (!file) continue;
 
@@ -354,7 +356,7 @@ export default function NewPostPage() {
   };
 
   return (
-    <main className="min-h-screen bg-transparent">
+    <main id="main-content" className="min-h-screen bg-transparent">
       <div className="mx-auto max-w-7xl px-6 py-6">
         {/* Header */}
         <header className="flex items-center justify-between mb-6">
@@ -492,11 +494,11 @@ export default function NewPostPage() {
                 />
               </div>
             </div>
-            
+
             {/* Cover Image Preview */}
             {form.coverImage && (
               <div className="mt-3 rounded-xl overflow-hidden border border-[#18181B]/10 max-w-xs">
-                <img src={form.coverImage} alt="Cover preview" className="w-full h-24 object-cover" />
+                <Image width={800} height={450} unoptimized src={form.coverImage} alt="Cover preview" className="w-full h-24 object-cover" />
               </div>
             )}
           </div>
@@ -509,7 +511,7 @@ export default function NewPostPage() {
                 <h2 className="text-base font-bold text-[#09090B]">撰寫內容</h2>
                 <span className="text-xs text-[#A1A1AA]">支援 Markdown 語法</span>
               </div>
-              
+
               {/* Toolbar */}
               <div className="flex flex-wrap gap-1 p-2 bg-[#F4F4F5] border-b border-[#18181B]/10">
                 <button type="button" onClick={() => insertMarkdown('bold', 'bold text')} className="p-2 rounded-lg hover:bg-white transition-colors cursor-pointer" title="Bold">
@@ -551,7 +553,7 @@ export default function NewPostPage() {
                 </button>
                 <button type="button" onClick={() => insertMarkdown('codeblock', 'code block')} className="p-2 rounded-lg hover:bg-white transition-colors cursor-pointer text-xs font-mono" title="Code Block">{'</>'}</button>
               </div>
-              
+
               {/* Editor */}
               <textarea
                 id="content"
@@ -574,7 +576,7 @@ export default function NewPostPage() {
               </div>
 
               {form.title || form.content ? (
-                <div 
+                <div
                   ref={previewRef}
                   onScroll={handlePreviewScroll}
                   className="flex-1 overflow-y-auto p-4 min-h-[500px] max-h-[500px] prose prose-sm prose-slate max-w-none
@@ -617,9 +619,9 @@ export default function NewPostPage() {
                     </div>
                   )}
                   {form.content && (
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    <MarkdownContent>
                       {form.content}
-                    </ReactMarkdown>
+                    </MarkdownContent>
                   )}
                 </div>
               ) : (

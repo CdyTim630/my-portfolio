@@ -1,0 +1,56 @@
+/* One direct language link with the same touch target as the mobile menu. */
+.portfolio-theme .language-switch {
+  display: flex;
+  flex: 0 0 44px;
+  align-items: center;
+}
+
+.portfolio-theme .language-switch-control {
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  border: 1px solid var(--home-border);
+  border-radius: 10px;
+  background: var(--home-surface);
+  color: var(--home-text-strong);
+  text-decoration: none;
+  transition: background-color 140ms ease, color 140ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.portfolio-theme .language-switch-control:hover {
+  background: var(--home-surface-muted);
+  color: var(--home-primary);
+}
+
+.portfolio-theme .language-switch-control:focus-visible {
+  outline: 2px solid var(--home-primary);
+  outline-offset: 3px;
+}
+
+.portfolio-theme .language-switch-glyph {
+  display: flex;
+  align-items: baseline;
+  gap: 1px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.portfolio-theme .language-switch-glyph span:first-child {
+  font-size: 17px;
+  transform: translateY(-2px);
+}
+
+.portfolio-theme .language-switch-glyph span:last-child {
+  font-size: 11px;
+  transform: translateY(2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .portfolio-theme .language-switch-control {
+    transition: none;
+  }
+}

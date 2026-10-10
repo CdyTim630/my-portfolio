@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { FormEvent, useState } from "react";
+import { isSafeHttpUrl } from "@/lib/validation";
 
 interface ResumeLinkManagerProps {
   initialResumeUrl: string;
@@ -42,7 +43,7 @@ export default function ResumeLinkManager({ initialResumeUrl }: ResumeLinkManage
   }
 
   return (
-    <main className="min-h-screen bg-transparent">
+    <main id="main-content" className="min-h-screen bg-transparent">
       <div className="mx-auto max-w-3xl px-6 py-10">
         <header className="mb-8 flex items-center justify-between">
           <div>
@@ -87,7 +88,8 @@ export default function ResumeLinkManager({ initialResumeUrl }: ResumeLinkManage
                 {saving ? "儲存中..." : "儲存履歷連結"}
               </button>
               <a
-                href={resumeUrl}
+                href={isSafeHttpUrl(resumeUrl) ? resumeUrl : undefined}
+                aria-disabled={!isSafeHttpUrl(resumeUrl)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="rounded-xl border border-[#18181B]/10 px-5 py-2.5 text-sm font-semibold text-[#3F3F46] transition-all duration-200 hover:border-[#2563EB] hover:text-[#2563EB]"

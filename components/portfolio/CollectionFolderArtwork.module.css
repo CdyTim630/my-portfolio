@@ -1,0 +1,28 @@
+.artwork {
+  --folder-ink: #557dac;
+  --folder-edge: #bacde1;
+  --folder-back: #dce8f4;
+  --folder-face: #f2f7fc;
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.artwork[data-category="data"] { --folder-ink: #458f83; --folder-edge: #b2d4cc; --folder-back: #d8ece6; --folder-face: #f0f8f5; }
+.artwork[data-category="systems"] { --folder-ink: #a3864c; --folder-edge: #dacdaf; --folder-back: #ede5d3; --folder-face: #faf7ef; }
+.artwork[data-category="community"] { --folder-ink: #8c78a9; --folder-edge: #cfc2e0; --folder-back: #e8e0f1; --folder-face: #f7f4fb; }
+.artwork[data-category="play"] { --folder-ink: #b87866; --folder-edge: #e1c5ba; --folder-back: #f0ded6; --folder-face: #fcf5f1; }
+.back, .front { stroke: var(--folder-edge); stroke-width: 1.5; stroke-linejoin: round; }
+.back { fill: var(--folder-back); }
+.front { fill: var(--folder-face); transition: fill 180ms ease, stroke 180ms ease; }
+.tab, .mark, .rule { stroke: var(--folder-ink); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.tab { opacity: .5; }
+.mark { fill: var(--folder-face); }
+.rule { opacity: .38; }
+:global(.collection-folder:hover) .front { stroke: var(--folder-ink); }
+:global(.portfolio-theme[data-mode="dark"]) .artwork { --folder-ink: #98b7da; --folder-edge: #4b637e; --folder-back: #30445d; --folder-face: #243345; }
+:global(.portfolio-theme[data-mode="dark"]) .artwork[data-category="data"] { --folder-ink: #8fc6b7; --folder-edge: #466d64; --folder-back: #2e4b45; --folder-face: #243b36; }
+:global(.portfolio-theme[data-mode="dark"]) .artwork[data-category="systems"] { --folder-ink: #ccb782; --folder-edge: #6b6147; --folder-back: #4d4634; --folder-face: #38372b; }
+:global(.portfolio-theme[data-mode="dark"]) .artwork[data-category="community"] { --folder-ink: #b9a5d5; --folder-edge: #645774; --folder-back: #473d56; --folder-face: #342e43; }
+:global(.portfolio-theme[data-mode="dark"]) .artwork[data-category="play"] { --folder-ink: #d8a38f; --folder-edge: #795c50; --folder-back: #553f36; --folder-face: #40312e; }
+@media (prefers-reduced-motion: reduce) { .front { transition: none; } }

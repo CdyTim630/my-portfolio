@@ -1,15 +1,9 @@
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { requireAdminPage } from "@/lib/admin-auth";
 import { getResumeUrl } from "@/lib/site-settings";
 import ResumeLinkManager from "./ResumeLinkManager";
 
 export default async function ResumePage() {
-  const supabase = await createClient();
-  const { data } = await supabase.auth.getUser();
-
-  if (!data.user) {
-    redirect("/login");
-  }
+  await requireAdminPage();
 
   const resumeUrl = await getResumeUrl();
 

@@ -1,14 +1,9 @@
-import { redirect } from "next/navigation";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
+import { requireAdminPage } from "@/lib/admin-auth";
 import DiaryListClient from "./DiaryListClient";
 
 export default async function DiaryListPage() {
-  const supabase = await createClient();
-  const { data: userData } = await supabase.auth.getUser();
-  if (!userData.user) {
-    redirect("/login");
-  }
+  const { supabase } = await requireAdminPage();
 
   const { data: diaries } = await supabase
     .from("diaries")
@@ -19,7 +14,7 @@ export default async function DiaryListPage() {
     .order("created_at", { ascending: false });
 
   return (
-    <main className="min-h-screen bg-transparent">
+    <main id="main-content" className="min-h-screen bg-transparent">
       <div className="mx-auto max-w-6xl px-6 py-10">
         <header className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-4">

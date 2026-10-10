@@ -1,5 +1,5 @@
-import { notFound, redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { notFound } from "next/navigation";
+import { requireAdminPage } from "@/lib/admin-auth";
 import DiaryEditor from "@/components/DiaryEditor";
 
 export default async function EditDiaryPage({
@@ -11,11 +11,7 @@ export default async function EditDiaryPage({
   const numericId = Number(id);
   if (!Number.isFinite(numericId)) notFound();
 
-  const supabase = await createClient();
-  const { data: userData } = await supabase.auth.getUser();
-  if (!userData.user) {
-    redirect("/login");
-  }
+  const { supabase } = await requireAdminPage();
 
   const { data: diary } = await supabase
     .from("diaries")
