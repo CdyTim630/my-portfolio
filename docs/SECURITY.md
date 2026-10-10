@@ -2,7 +2,9 @@
 
 ## Required before deploying administrator features
 
-**Application authorization and database authorization must be deployed together.** The site now requires the verified user's `app_metadata.portfolio_admin` to be the boolean `true`. Existing accounts without this claim cannot open the admin UI or admin APIs. No production database, account, bucket, or policy was changed during this implementation.
+**Application authorization and database authorization must be deployed together.** The site now requires the verified user's `app_metadata.portfolio_admin` to be the boolean `true`. Existing accounts without this claim cannot open the admin UI or admin APIs. The initial implementation did not provision this claim. During the 2026-10-11 login recovery, the confirmed existing owner's account received the claim with explicit approval; no content rows, passwords, other accounts, buckets, or RLS policies were modified.
+
+**Release gate:** Before deploying an authorization change, verify the existing owner can open the original `/admin` dashboard against the configured environment. Passing fallback-mode CI without Supabase is not evidence of a working owner login. Complete the account migration before enabling its corresponding application guard.
 
 The original SQL allowed any authenticated user to manage shared site data and the login page offered public registration. Hiding registration or guarding a Next.js page does not protect direct Supabase Data API calls. The reviewed `supabase-security-hardening.sql` adds restrictive RLS policies, preserving existing author/public policies and content rows. It has not been executed or tested against the production database.
 
@@ -13,7 +15,7 @@ Deployment order:
 3. Disable public signups in Supabase Authentication settings. Password and magic-link sign-in for existing accounts remain supported.
 4. Review and run `supabase-security-hardening.sql`. It refuses to proceed if there is no administrator claim. Missing optional tables are reported and skipped; rerun the script after enabling one of those features. The script adds restrictive policies; existing permissive policies are still necessary to grant the intended public/owner access.
 5. Sign out and back in to refresh the JWT. Test owner access, an ordinary authenticated account, and anonymous access in a staging project. Tokens issued before a claim is revoked can keep that claim until expiry; use a short appropriate session lifetime and revoke sessions when removing access.
-6. Set allowed authentication redirect URLs to `http://localhost:3000/auth/callback` for development and `https://cdytim.vercel.app/auth/callback` for production. Magic links use PKCE code exchange; request and open the link in the same browser. Ensure the email template respects the configured redirect URL.
+6. Set the production Site URL to `https://cdytim.vercel.app` and allow `https://cdytim.vercel.app/auth/callback` as a redirect URL. These production values were saved during the 2026-10-11 recovery; the former Site URL was `http://localhost:3000` with an empty allowlist. Add `http://localhost:3000/auth/callback` only when enabling a configured development environment. Magic links use PKCE code exchange; request and open the link in the same browser. Ensure the email template respects the configured redirect URL.
 7. Configure `CRON_SECRET` before enabling the existing Vercel cron. The cron now returns `503` when the secret is absent and `401` for an invalid bearer token. Use a randomly generated secret of at least 32 bytes. No secret is required for public pages.
 
 ```sql

@@ -9,7 +9,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
   const { reason } = await searchParams;
   const localAvailable = await localAdminAvailableForPage();
   const messages: Record<string, string> = {
-    forbidden: "This account is not authorized to administer the portfolio.",
+    forbidden: "You are signed in, but this account does not have administrator access. Use the existing site owner account, or ask the site owner to check its permissions.",
     unavailable: localAvailable ? "" : "Sign-in is temporarily unavailable.",
     callback: "This sign-in link could not be verified. Request a new link.",
   };

@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { authErrorMessage } from "@/lib/auth-errors";
 import PersonalThemeSwitcher from "@/components/personal/PersonalThemeSwitcher";
 import styles from "./LoginForm.module.css";
 
@@ -12,29 +13,36 @@ export default function LoginForm({ configured, initialMessage, localAvailable =
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
+  const inFlight = useRef(false);
   const [message, setMessage] = useState(initialMessage);
   const localOnly = localAvailable && !configured;
+  const normalizedEmail = email.trim();
+  const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail);
 
   async function signIn(event: FormEvent) {
     event.preventDefault();
+    if (!configured || inFlight.current || !validEmail || !password) return;
+    inFlight.current = true;
     setBusy(true);
     setMessage("");
     try {
-      const { error } = await createClient().auth.signInWithPassword({ email, password });
-      if (error) setMessage("Unable to sign in. Check your credentials and try again.");
+      const { error } = await createClient().auth.signInWithPassword({ email: normalizedEmail, password });
+      if (error) setMessage(authErrorMessage(error, "password"));
       else { router.push("/admin"); router.refresh(); }
-    } catch { setMessage("Sign-in is temporarily unavailable. Please try again later."); }
-    finally { setBusy(false); }
+    } catch (error) { setMessage(authErrorMessage(error, "password")); }
+    finally { inFlight.current = false; setBusy(false); }
   }
 
   async function sendMagicLink() {
+    if (!configured || inFlight.current || !validEmail) return;
+    inFlight.current = true;
     setBusy(true);
     setMessage("");
     try {
-      const { error } = await createClient().auth.signInWithOtp({ email, options: { shouldCreateUser: false, emailRedirectTo: `${window.location.origin}/auth/callback` } });
-      setMessage(error ? "Unable to send a sign-in link. Please try again later." : "If this is an existing account, check your email for a sign-in link.");
-    } catch { setMessage("Sign-in is temporarily unavailable. Please try again later."); }
-    finally { setBusy(false); }
+      const { error } = await createClient().auth.signInWithOtp({ email: normalizedEmail, options: { shouldCreateUser: false, emailRedirectTo: `${window.location.origin}/auth/callback` } });
+      setMessage(error ? authErrorMessage(error, "magic-link") : "If this is an existing account, check your email for a sign-in link. Open it in this browser to complete sign-in.");
+    } catch (error) { setMessage(authErrorMessage(error, "magic-link")); }
+    finally { inFlight.current = false; setBusy(false); }
   }
 
   return <PersonalThemeSwitcher><main id="main-content" className="min-h-screen flex items-center justify-center p-6 text-[var(--home-text)]">
@@ -52,7 +60,7 @@ export default function LoginForm({ configured, initialMessage, localAvailable =
         <div><label htmlFor="login-password" className="block text-sm font-medium mb-2">Password</label><input id="login-password" type="password" autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} required className="w-full rounded-lg border border-[var(--home-border)] bg-[var(--home-surface-muted)] p-3" /></div>
         <button disabled={!configured || busy} className={`${styles.primaryButton} w-full rounded-lg bg-[#2563EB] p-3 font-semibold text-white disabled:opacity-50`}>{busy ? "Please wait…" : "Sign in"}</button>
       </form>
-      <button type="button" onClick={sendMagicLink} disabled={!configured || busy || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)} className="mt-4 w-full rounded-lg border border-[var(--home-border)] p-3 text-sm font-medium disabled:opacity-50">Email a sign-in link</button>
+      <button type="button" onClick={sendMagicLink} disabled={!configured || busy || !validEmail} className="mt-4 w-full rounded-lg border border-[var(--home-border)] p-3 text-sm font-medium disabled:opacity-50">Email a sign-in link</button>
       </>}
     </section>
   </main></PersonalThemeSwitcher>;
