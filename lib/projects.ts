@@ -1,5 +1,6 @@
 import { featuredProductCases } from "./featured-product-cases";
 import { featuredEngineeringCases } from "./featured-engineering-cases";
+import { waterMapCase } from "./water-map-case";
 
 export type ProjectCategory =
   "Backend" | "Data" | "AI" | "Full-stack" | "Frontend";
@@ -554,6 +555,7 @@ export const projects: Project[] = [
   },
   ...featuredProductCases,
   ...featuredEngineeringCases,
+  waterMapCase,
 ];
 
 export const featuredProjects = projects.filter((project) => project.featured);

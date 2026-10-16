@@ -27,7 +27,9 @@ export async function generateMetadata({
   searchParams,
 }: Props): Promise<Metadata> {
   const [locale, documents, { slug }] = await Promise.all([
-    getPortfolioLocale(searchParams), getPublicProjectDocuments(), params,
+    getPortfolioLocale(searchParams),
+    getPublicProjectDocuments(),
+    params,
   ]);
   const sourceProject = documents.find((document) => document.slug === slug);
   if (!sourceProject)
@@ -64,7 +66,13 @@ export default async function ProjectPage({ params, searchParams }: Props) {
   if (!sourceProject) notFound();
   const zh = locale === "zh-TW";
   const project = projectForLocale(sourceProject, locale);
-  const separateArchitecture = project.architecture.length > 0 && !project.sections.some((section) => section.id === "architecture");
+  const separateArchitecture =
+    project.architecture.length > 0 &&
+    !project.sections.some((section) => section.id === "architecture");
+  const report = project.evidence.find(
+    (item) =>
+      /\.pdf(?:[?#]|$)/i.test(item.url) && /report|報告/i.test(item.label),
+  );
   const next = projectForLocale(
     documents[
       (documents.findIndex((item) => item.slug === project.slug) + 1) %
@@ -112,8 +120,16 @@ export default async function ProjectPage({ params, searchParams }: Props) {
                   {project.category
                     .map((category) => categoryLabel(category, locale))
                     .join(" / ")}{" "}
-                  {project.year > 0 && <><span>·</span> {project.year} </>}
-                  {project.status && <><span>·</span> {project.status}</>}
+                  {project.year > 0 && (
+                    <>
+                      <span>·</span> {project.year}{" "}
+                    </>
+                  )}
+                  {project.status && (
+                    <>
+                      <span>·</span> {project.status}
+                    </>
+                  )}
                 </p>
                 <h1>
                   {project.title}
@@ -121,14 +137,28 @@ export default async function ProjectPage({ params, searchParams }: Props) {
                 </h1>
                 <p className="case-summary">{project.summary}</p>
                 <div className="case-actions">
-                  {project.repository && <a
-                    className="button-primary"
-                    href={project.repository}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    {zh ? "查看原始碼" : "View source"} <Icon name="external" />
-                  </a>}
+                  {report && (
+                    <a
+                      className="button-secondary"
+                      href={report.url}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {zh ? "閱讀完整報告" : "Read full report"}{" "}
+                      <Icon name="external" />
+                    </a>
+                  )}
+                  {project.repository && (
+                    <a
+                      className="button-primary"
+                      href={project.repository}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {zh ? "查看原始碼" : "View source"}{" "}
+                      <Icon name="external" />
+                    </a>
+                  )}
                   {project.demo && (
                     <a
                       className="button-secondary"
@@ -139,9 +169,11 @@ export default async function ProjectPage({ params, searchParams }: Props) {
                       {zh ? "線上展示" : "Live demo"} <Icon name="external" />
                     </a>
                   )}
-                  {project.evidence.length > 0 && <a className="text-link" href={sectionHref("evidence")}>
-                    {zh ? "查看參考資料 ↓" : "Explore the evidence ↓"}
-                  </a>}
+                  {project.evidence.length > 0 && (
+                    <a className="text-link" href={sectionHref("evidence")}>
+                      {zh ? "查看參考資料 ↓" : "Explore the evidence ↓"}
+                    </a>
+                  )}
                 </div>
               </div>
               <div className="case-hero-visual">
@@ -149,40 +181,55 @@ export default async function ProjectPage({ params, searchParams }: Props) {
               </div>
             </div>
             <dl className="case-facts">
-              {project.role && <div>
-                <dt>{zh ? "我的角色" : "MY ROLE"}</dt>
-                <dd>{project.role}</dd>
-              </div>}
-              {project.team && <div>
-                <dt>{zh ? "團隊" : "COLLABORATION"}</dt>
-                <dd>{project.team}</dd>
-              </div>}
-              {project.stack.length > 0 && <div>
-                <dt>{zh ? "使用技術" : "STACK"}</dt>
-                <dd>{project.stack.join(" · ")}</dd>
-              </div>}
+              {project.role && (
+                <div>
+                  <dt>{zh ? "我的角色" : "MY ROLE"}</dt>
+                  <dd>{project.role}</dd>
+                </div>
+              )}
+              {project.team && (
+                <div>
+                  <dt>{zh ? "團隊" : "COLLABORATION"}</dt>
+                  <dd>{project.team}</dd>
+                </div>
+              )}
+              {project.stack.length > 0 && (
+                <div>
+                  <dt>{zh ? "使用技術" : "STACK"}</dt>
+                  <dd>{project.stack.join(" · ")}</dd>
+                </div>
+              )}
             </dl>
-            {project.contribution && <div className="case-contribution-summary">
-              <p className="eyebrow">{zh ? "個人貢獻" : "MY CONTRIBUTION"}</p>
-              <p>{project.contribution}</p>
-            </div>}
+            {project.contribution && (
+              <div className="case-contribution-summary">
+                <p className="eyebrow">{zh ? "個人貢獻" : "MY CONTRIBUTION"}</p>
+                <p>{project.contribution}</p>
+              </div>
+            )}
           </header>
           {project.images.length > 0 && (
-            <div className="case-gallery">
-              {project.images.map((image) => (
-                <figure key={image.src}>
-                  <Image
-                    src={image.src}
-                    alt={image.alt}
-                    width={1280}
-                    height={800}
-                    sizes="(max-width: 1160px) 100vw, 1100px"
-                    unoptimized={!image.src.startsWith("/")}
-                  />
-                  <figcaption>{image.caption}</figcaption>
-                </figure>
-              ))}
-            </div>
+            <details className="case-gallery-disclosure">
+              <summary>
+                {zh
+                  ? `查看實際畫面（${project.images.length}）`
+                  : `View project screenshots (${project.images.length})`}
+              </summary>
+              <div className="case-gallery">
+                {project.images.map((image) => (
+                  <figure key={image.src}>
+                    <Image
+                      src={image.src}
+                      alt={image.alt}
+                      width={1280}
+                      height={800}
+                      sizes="(max-width: 1160px) 100vw, 1100px"
+                      unoptimized={!image.src.startsWith("/")}
+                    />
+                    <figcaption>{image.caption}</figcaption>
+                  </figure>
+                ))}
+              </div>
+            </details>
           )}
           {project.video && (
             <figure className="case-video">
@@ -211,22 +258,25 @@ export default async function ProjectPage({ params, searchParams }: Props) {
           <div className="case-layout">
             <aside className="case-toc">
               <nav aria-label={zh ? "專案目錄" : "Project contents"}>
-                <p className="eyebrow">
-                  {zh ? "內容導覽" : "IN THIS PROJECT"}
-                </p>
+                <p className="eyebrow">{zh ? "內容導覽" : "IN THIS PROJECT"}</p>
                 {project.sections.map((section, index) => (
                   <a key={section.id} href={sectionHref(section.id)}>
                     <span>{String(index + 1).padStart(2, "0")}</span>
                     {section.title}
                   </a>
                 ))}
-                {separateArchitecture && <a href={sectionHref("project-architecture")}>
-                  <span>↗</span>{zh ? "專案架構" : "Project architecture"}
-                </a>}
-                {project.evidence.length > 0 && <a href={sectionHref("evidence")}>
-                  <span>↗</span>
-                  {zh ? "原始碼與參考資料" : "Source references"}
-                </a>}
+                {separateArchitecture && (
+                  <a href={sectionHref("project-architecture")}>
+                    <span>↗</span>
+                    {zh ? "專案架構" : "Project architecture"}
+                  </a>
+                )}
+                {project.evidence.length > 0 && (
+                  <a href={sectionHref("evidence")}>
+                    <span>↗</span>
+                    {zh ? "原始碼與參考資料" : "Source references"}
+                  </a>
+                )}
               </nav>
             </aside>
             <article className="case-article">
@@ -245,9 +295,10 @@ export default async function ProjectPage({ params, searchParams }: Props) {
                   {section.paragraphs.map((paragraph, i) => (
                     <p key={i}>{paragraph}</p>
                   ))}
-                  {section.id === "architecture" && project.architecture.length > 0 && (
-                    <ArchitectureDiagram project={project} locale={locale} />
-                  )}
+                  {section.id === "architecture" &&
+                    project.architecture.length > 0 && (
+                      <ArchitectureDiagram project={project} locale={locale} />
+                    )}
                   {section.bullets && (
                     <ul>
                       {section.bullets.map((item) => (
@@ -267,53 +318,64 @@ export default async function ProjectPage({ params, searchParams }: Props) {
                   )}
                 </section>
               ))}
-              {separateArchitecture && <section id="project-architecture" className="case-section">
-                <h2>{zh ? "專案架構" : "Project architecture"}</h2>
-                <ArchitectureDiagram project={project} locale={locale} />
-              </section>}
-              {project.evidence.length > 0 && <section id="evidence" className="case-section evidence-section">
-                <div className="case-section-heading">
-                  <span className="case-section-number" aria-hidden="true">
-                    ↗
-                  </span>
-                  <div>
-                    <p className="eyebrow">
-                      {zh ? "延伸閱讀" : "READ THE SOURCE"}
-                    </p>
-                    <h2>{zh ? "原始碼與參考資料" : "Evidence & references"}</h2>
+              {separateArchitecture && (
+                <section id="project-architecture" className="case-section">
+                  <h2>{zh ? "專案架構" : "Project architecture"}</h2>
+                  <ArchitectureDiagram project={project} locale={locale} />
+                </section>
+              )}
+              {project.evidence.length > 0 && (
+                <section
+                  id="evidence"
+                  className="case-section evidence-section"
+                >
+                  <div className="case-section-heading">
+                    <span className="case-section-number" aria-hidden="true">
+                      ↗
+                    </span>
+                    <div>
+                      <p className="eyebrow">
+                        {zh ? "延伸閱讀" : "READ THE SOURCE"}
+                      </p>
+                      <h2>
+                        {zh ? "原始碼與參考資料" : "Evidence & references"}
+                      </h2>
+                    </div>
                   </div>
-                </div>
-                <p>
-                  {zh
-                    ? "以下連結包含專案原始碼、報告與開發紀錄，可進一步了解技術細節及我的貢獻。"
-                    : "These links support the technical details above. Team implementation and my contribution are described separately."}
-                </p>
-                <ol>
-                  {project.evidence.map((source) => (
-                    <li key={source.url}>
-                      <a href={source.url} target="_blank" rel="noreferrer">
-                        {source.label}
-                        <Icon name="external" />
-                      </a>
-                      <p>{source.detail}</p>
-                    </li>
-                  ))}
-                </ol>
-              </section>}
+                  <p>
+                    {zh
+                      ? "以下連結包含專案原始碼、報告與開發紀錄，可進一步了解技術細節及我的貢獻。"
+                      : "These links support the technical details above. Team implementation and my contribution are described separately."}
+                  </p>
+                  <ol>
+                    {project.evidence.map((source) => (
+                      <li key={source.url}>
+                        <a href={source.url} target="_blank" rel="noreferrer">
+                          {source.label}
+                          <Icon name="external" />
+                        </a>
+                        <p>{source.detail}</p>
+                      </li>
+                    ))}
+                  </ol>
+                </section>
+              )}
             </article>
           </div>
-          {documents.length > 1 && <Link
-            href={portfolioHref(`/projects/${next.slug}`, locale)}
-            className="next-project"
-          >
-            <span className="eyebrow">
-              {zh ? "下一個專案" : "NEXT PROJECT"}
-            </span>
-            <span>
-              {next.title}
-              <Icon />
-            </span>
-          </Link>}
+          {documents.length > 1 && (
+            <Link
+              href={portfolioHref(`/projects/${next.slug}`, locale)}
+              className="next-project"
+            >
+              <span className="eyebrow">
+                {zh ? "下一個專案" : "NEXT PROJECT"}
+              </span>
+              <span>
+                {next.title}
+                <Icon />
+              </span>
+            </Link>
+          )}
         </main>
         <SiteFooter locale={locale} />
       </div>

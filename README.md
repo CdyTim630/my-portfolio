@@ -24,17 +24,19 @@ Open <http://localhost:3000> for the personal website or <http://localhost:3000/
 
 - The original personal homepage at `/`, retaining its greeting, portrait, personal sections, visual style, and theme control.
 - A concise English/Traditional Chinese engineering landing page at `/portfolio` with selected work, résumé and contact links, purple/blue accents, and rounded project cards.
-- `/projects` with project domain filters and a categorized, searchable bilingual archive. Native **Details** disclosures show summaries, contributions, technologies and sources. Every work has a `/projects/[slug]` detail page with editable sections, references, responsive architecture diagrams, and optional screenshots/video; the seven original detailed projects retain their ten-section narratives.
+- `/projects` with project domain filters and a categorized, searchable bilingual archive. Native **Details** disclosures show summaries, contributions, technologies and sources. Every work has a `/projects/[slug]` detail page with editable sections, references, responsive architecture diagrams, and optional screenshots/video; eight projects have ten-section narratives; all other entries now have six-section explanations.
 - Independent personal-site and portfolio theme preferences with **Light**, **Dark**, and **Color** modes, scoped styles, keyboard-accessible mobile navigation, reduced-motion support, and essential content readable without JavaScript.
 - Existing blog, comments, private diary editor, post/category/experience administration, resume settings, and analytics, plus a bilingual Project Studio with independent drafts and published versions.
 - Metadata, canonical links, social previews, structured data, sitemap, robots rules, and optimized local images.
 - Typed request validation, trusted administrator authorization, failure states, automated tests, GitHub Actions, and a standalone Docker build.
 
-The curated catalog contains **20 distinct works with 7 detailed case studies and a 17-entry categorized archive**. Four archive projects—SIGmile, ToMyBaby, Algorithm Visualizer and the Jenkins delivery pipeline—also have complete cases. All six homepage highlights link to dedicated ten-section articles. Source status and personal contributions are explicit. The read-only review covered 34 accessible repositories.
+The curated catalog contains **20 distinct works with detailed bilingual pages, including 8 full case studies and a 17-entry categorized archive**. Five archive projects—SIGmile, ToMyBaby, Algorithm Visualizer, the Jenkins delivery pipeline and NTU Water Risk Map—also have complete cases. All six homepage highlights link to dedicated ten-section articles. Source status and personal contributions are explicit. The read-only review covered 34 accessible repositories.
 
-The compact **文 A** button switches between English and Traditional Chinese on `/portfolio`, `/projects`, and project pages. The portfolio interface, all seven complete project pages, and the secondary project archive support both languages. Explicit `?lang=en` or `?lang=zh-TW` links take precedence over the saved `portfolio-locale` cookie, so links are shareable and language selection works without JavaScript. The personal website, Blog, existing CMS entries, and administrator content retain their original wording.
+The compact **文 A** button switches between English and Traditional Chinese on `/portfolio`, `/projects`, and project pages. The portfolio interface, all 20 detailed project pages, and the secondary project archive support both languages. Explicit `?lang=en` or `?lang=zh-TW` links take precedence over the saved `portfolio-locale` cookie, so links are shareable and language selection works without JavaScript. The personal website, Blog, existing CMS entries, and administrator content retain their original wording.
 
 For a local project editor without Supabase, enable the development workspace in `.env.local` and run `npm run dev:local`. `/login` provides **進入本機後台**; drafts and local publications persist in the ignored `.local-data/projects.json`. Production builds keep this workspace disabled. Setup and storage details are in [作品工作室](docs/PROJECT_STUDIO.md#本機試用).
+
+Nine actual UI captures across seven projects provide local image covers and expandable screenshots, with bilingual provenance captions. Report-backed projects include a direct report link; the water map links its final report and presentation. See [project content and capture notes](docs/PROJECT_NARRATIVES.md). Published CMS edits continue to take precedence over the built-in starting content.
 
 Archivo headings and Space Grotesk body text are served locally. The portfolio's typography, gradients, and project visuals have their own CSS scope; the original personal homepage and Blog retain their presentation.
 
@@ -51,6 +53,9 @@ lib/projects.ts          Typed case studies and source evidence
 lib/project-translations.ts  Complete Traditional Chinese case-study narratives
 lib/featured-*-cases.ts  Four promoted bilingual cases, included in the central registry
 lib/project-archive.ts    Additional projects with bilingual summaries
+lib/archive-project-narratives.ts  Detailed bilingual archive explanations
+lib/water-map-case.ts     Report-backed campus water-map case
+lib/project-media.ts      Actual UI captures and bilingual provenance captions
 lib/project-collections.ts  Primary archive categories and concise bilingual teasers
 lib/portfolio-locale*.ts  Portfolio URL helpers and server locale resolution
 lib/public-content.ts    Anonymous published-content queries and fallbacks

@@ -2,16 +2,26 @@ import { expect, test, type Page } from "@playwright/test";
 import { projects, type Project } from "../../lib/projects";
 import { localizeProject } from "../../lib/localized-projects";
 import type { PortfolioLocale } from "../../lib/portfolio-locale";
-import {
-  type AdditionalProject,
-} from "../../lib/project-archive";
+import { type AdditionalProject } from "../../lib/project-archive";
 import { projectCollections } from "../../lib/project-collections";
 import { seedProjectDocuments } from "../../lib/project-cms-seeds";
-import { projectArchiveEntry, projectGalleryEntry } from "../../lib/project-presentation";
+import {
+  projectArchiveEntry,
+  projectGalleryEntry,
+} from "../../lib/project-presentation";
 
-const additionalProjects = seedProjectDocuments.filter((document) => document.archived).map((document) => projectArchiveEntry(document));
-const featuredAdditionalProjects = seedProjectDocuments.filter((document) => document.archived && document.en.featured).map((document) => projectArchiveEntry(document));
-const projectGalleryMeta = Object.fromEntries(seedProjectDocuments.map((document) => [document.slug, projectGalleryEntry(document)]));
+const additionalProjects = seedProjectDocuments
+  .filter((document) => document.archived)
+  .map((document) => projectArchiveEntry(document));
+const featuredAdditionalProjects = seedProjectDocuments
+  .filter((document) => document.archived && document.en.featured)
+  .map((document) => projectArchiveEntry(document));
+const projectGalleryMeta = Object.fromEntries(
+  seedProjectDocuments.map((document) => [
+    document.slug,
+    projectGalleryEntry(document),
+  ]),
+);
 
 async function expectNoHorizontalOverflow(page: Page) {
   await page.evaluate(async () => {
@@ -31,7 +41,14 @@ async function expectCaseStudyContent(
   sourceProject: Project,
   locale: PortfolioLocale,
 ) {
-  const project = localizeProject(sourceProject, locale);
+  const projectDocument = seedProjectDocuments.find(
+    (entry) => entry.slug === sourceProject.slug,
+  );
+  const project = projectDocument
+    ? locale === "zh-TW"
+      ? projectDocument.zh
+      : projectDocument.en
+    : localizeProject(sourceProject, locale);
   const zh = locale === "zh-TW";
   await expect(page.locator(".portfolio-theme")).toHaveAttribute(
     "lang",
@@ -40,12 +57,47 @@ async function expectCaseStudyContent(
   await expect(page.getByRole("heading", { level: 1 })).toContainText(
     project.title,
   );
-  await expect(
-    page.getByRole("link", {
-      name: zh ? "查看原始碼" : "View source",
-      exact: true,
-    }),
-  ).toHaveAttribute("href", project.repository);
+  const sourceLink = page.getByRole("link", {
+    name: zh ? "查看原始碼" : "View source",
+    exact: true,
+  });
+  if (project.repository)
+    await expect(sourceLink).toHaveAttribute("href", project.repository);
+  else await expect(sourceLink).toHaveCount(0);
+  const report = project.evidence.find(
+    (entry) =>
+      /\.pdf(?:[?#]|$)/i.test(entry.url) && /report|報告/i.test(entry.label),
+  );
+  if (report)
+    await expect(
+      page.getByRole("link", {
+        name: zh ? "閱讀完整報告" : "Read full report",
+        exact: true,
+      }),
+    ).toHaveAttribute("href", report.url);
+  if (project.images.length) {
+    const gallery = page.locator(".case-gallery-disclosure");
+    await gallery.locator("summary").click();
+    await expect(gallery).toHaveAttribute("open", "");
+    await expect(gallery.locator("figure")).toHaveCount(project.images.length);
+    for (const image of project.images) {
+      const captured = gallery.getByRole("img", {
+        name: image.alt,
+        exact: true,
+      });
+      await captured.scrollIntoViewIfNeeded();
+      await expect(captured).toBeVisible();
+      await expect
+        .poll(() =>
+          captured.evaluate((node) => (node as HTMLImageElement).naturalWidth),
+        )
+        .toBeGreaterThan(0);
+      await expect(
+        gallery.getByText(image.caption!, { exact: true }),
+      ).toBeVisible();
+    }
+    await gallery.locator("summary").click();
+  }
   if (project.demo)
     await expect(
       page.getByRole("link", {
@@ -85,8 +137,14 @@ async function expectCaseStudyContent(
   });
   await expect(language.getByRole("link")).toHaveCount(1);
   await expect(
-    language.getByRole("link", { name: zh ? "Switch to English" : "切換至繁體中文", exact: true }),
-  ).toHaveAttribute("href", `/projects/${project.slug}?lang=${zh ? "en" : "zh-TW"}`);
+    language.getByRole("link", {
+      name: zh ? "Switch to English" : "切換至繁體中文",
+      exact: true,
+    }),
+  ).toHaveAttribute(
+    "href",
+    `/projects/${project.slug}?lang=${zh ? "en" : "zh-TW"}`,
+  );
   await expect(language).toHaveAttribute("data-language", locale);
 
   await page.evaluate(async () => {
@@ -144,7 +202,9 @@ async function expectArchiveDisclosure(
   await expect(
     card.getByRole("heading", { name: project.title[language], exact: true }),
   ).toBeVisible();
-  await expect(card.locator(".gallery-teaser")).toHaveText(projectGalleryMeta[project.id].teaser[language]);
+  await expect(card.locator(".gallery-teaser")).toHaveText(
+    projectGalleryMeta[project.id].teaser[language],
+  );
   await expect(card.locator(".gallery-teaser")).toBeVisible();
   const details = card.locator("details");
   const summary = details.locator("summary");
@@ -154,8 +214,13 @@ async function expectArchiveDisclosure(
   await expect(card.locator(".archive-summary")).not.toBeVisible();
   await summary.click();
   await expect(details).toHaveAttribute("open", "");
-  if (project.summary[language].trim() !== projectGalleryMeta[project.id].teaser[language].trim()) {
-    await expect(card.locator(".archive-summary")).toHaveText(project.summary[language]);
+  if (
+    project.summary[language].trim() !==
+    projectGalleryMeta[project.id].teaser[language].trim()
+  ) {
+    await expect(card.locator(".archive-summary")).toHaveText(
+      project.summary[language],
+    );
     await expect(card.locator(".archive-summary")).toBeVisible();
   } else {
     // The introduction stays above the disclosure; opening details should not repeat it.
@@ -349,6 +414,7 @@ test("personal website and portfolio preserve separate styles and theme preferen
 test("project filters and every published case study are usable", async ({
   page,
 }, testInfo) => {
+  test.setTimeout(60_000);
   await page.goto("/projects?lang=en");
   await expect(page.locator(".work-card")).toHaveCount(projects.length);
   await expect(page.locator(".archive-card")).toHaveCount(
@@ -459,7 +525,7 @@ test("project filters and every published case study are usable", async ({
     path: testInfo.outputPath("projects.png"),
     fullPage: true,
   });
-  for (const project of projects) {
+  for (const { en: project } of seedProjectDocuments) {
     await page.goto(`/projects/${project.slug}?lang=en`);
     await expectCaseStudyContent(page, project, "en");
     await expectNoHorizontalOverflow(page);
@@ -557,6 +623,7 @@ test("public content remains visible without JavaScript", async ({
   baseURL,
   viewport,
 }) => {
+  test.setTimeout(60_000);
   const context = await browser.newContext({
     javaScriptEnabled: false,
     baseURL,
@@ -598,7 +665,7 @@ test("public content remains visible without JavaScript", async ({
       await expectArchiveDisclosure(page, project, "en");
     await expectNoHorizontalOverflow(page);
     await page.getByRole("link", { name: "Read project" }).first().click();
-    for (const project of projects) {
+    for (const { en: project } of seedProjectDocuments) {
       if (new URL(page.url()).pathname !== `/projects/${project.slug}`)
         await page.goto(`/projects/${project.slug}?lang=en`);
       await expectCaseStudyContent(page, project, "en");
@@ -608,7 +675,9 @@ test("public content remains visible without JavaScript", async ({
           (featured) => featured.id === project.slug,
         )
       ) {
-        await page.getByRole("link", { name: "切換至繁體中文", exact: true }).click();
+        await page
+          .getByRole("link", { name: "切換至繁體中文", exact: true })
+          .click();
         await expect(page).toHaveURL(
           (url) =>
             url.pathname === `/projects/${project.slug}` &&
@@ -627,6 +696,7 @@ test("public content remains visible without JavaScript", async ({
 test("portfolio language switch translates complete cases and leaves personal pages unchanged", async ({
   page,
 }, testInfo) => {
+  test.setTimeout(60_000);
   await page.goto("/portfolio?lang=en");
   await expect(page.locator(".portfolio-theme")).toHaveAttribute("lang", "en");
   await page.getByRole("link", { name: "切換至繁體中文", exact: true }).click();
@@ -674,7 +744,9 @@ test("portfolio language switch translates complete cases and leaves personal pa
     await expect(
       card.getByRole("heading", { name: project.title.zh, exact: true }),
     ).toBeVisible();
-    await expect(card.locator(".gallery-teaser")).toHaveText(projectGalleryMeta[project.id].teaser.zh);
+    await expect(card.locator(".gallery-teaser")).toHaveText(
+      projectGalleryMeta[project.id].teaser.zh,
+    );
     await expect(card.locator(".gallery-teaser")).toBeVisible();
   }
   const categories = page.getByRole("group", { name: "依分類瀏覽作品" });
@@ -730,7 +802,7 @@ test("portfolio language switch translates complete cases and leaves personal pa
     .click();
   await expect(page).toHaveURL(/\/projects\/[^?]+\?lang=zh-TW$/);
 
-  for (const project of projects) {
+  for (const { en: project } of seedProjectDocuments) {
     await page.goto(`/projects/${project.slug}?lang=zh-TW`);
     await expectCaseStudyContent(page, project, "zh-TW");
     await expectNoHorizontalOverflow(page);
@@ -748,7 +820,9 @@ test("portfolio language switch translates complete cases and leaves personal pa
     page.getByRole("link", { name: "View projects", exact: true }),
   ).toBeVisible();
   await page.goto("/portfolio");
-  await page.getByRole("link", { name: "Switch to English", exact: true }).click();
+  await page
+    .getByRole("link", { name: "Switch to English", exact: true })
+    .click();
   await expect(page).toHaveURL(/\/portfolio\?lang=en$/);
   await page.goto("/portfolio");
   await expect(page.locator(".portfolio-theme")).toHaveAttribute("lang", "en");
@@ -793,9 +867,13 @@ test("metadata, safe API failure modes and cron authentication are enforced", as
     data: { action: "publish", document: seedProjectDocuments[0] },
   });
   expect(projectMutation.status()).toBe(503);
-  const foreignProjectMutation = await request.put("/api/admin/projects/employa", {
-    data: {}, headers: { origin: "https://attacker.example" },
-  });
+  const foreignProjectMutation = await request.put(
+    "/api/admin/projects/employa",
+    {
+      data: {},
+      headers: { origin: "https://attacker.example" },
+    },
+  );
   expect(foreignProjectMutation.status()).toBe(403);
   const badTrack = await request.post("/api/track", {
     data: { path: "//attacker.example" },

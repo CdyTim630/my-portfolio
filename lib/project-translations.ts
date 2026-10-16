@@ -1,6 +1,7 @@
 import type { Project } from "./projects";
 import { featuredProductTranslations } from "./featured-product-cases";
 import { featuredEngineeringTranslations } from "./featured-engineering-cases";
+import { waterMapTranslation } from "./water-map-case";
 
 export type ProjectTranslation = Pick<
   Project,
@@ -28,6 +29,7 @@ const miningSlides = `${miningRepo}/blob/a3cbb90/${encodeURIComponent("文字探
 export const projectTranslations: Record<string, ProjectTranslation> = {
   ...featuredProductTranslations,
   ...featuredEngineeringTranslations,
+  "ntu-water-risk-map": waterMapTranslation,
   employa: {
     title: "EmploYA",
     summary: "整合 AI 職涯對話與真人諮詢，幫助青年找到適合自己的資源與下一步。",

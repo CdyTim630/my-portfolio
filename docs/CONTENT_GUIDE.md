@@ -11,7 +11,7 @@ Maintain the two visual experiences separately: personal rules stay under `.pers
 - `lib/projects.ts` is the versioned source of engineering case studies. Changes receive TypeScript checks and content tests before deployment. It has no Supabase dependency.
 - Supabase remains the CMS for published Blog posts, categories, experiences, resume settings, comments and private diaries. Edit these in the existing authenticated admin UI after completing [security setup](SECURITY.md). Do not move live rows into sample files.
 
-The engineering UI supports English and Traditional Chinese through the EN/中文 switch on `/portfolio`, `/projects`, and case pages. Each full case has a corresponding entry in the translation registry; the four promoted cases keep their English and Chinese content together in `lib/featured-product-cases.ts` and `lib/featured-engineering-cases.ts`, imported by `lib/projects.ts` and `lib/project-translations.ts`; additional projects use bilingual fields in `lib/project-archive.ts`. The personal website retains its original labels, and stored CMS content keeps the author's original language. Do not apply the portfolio language setting to the root homepage, Blog, or administrator interface.
+The engineering UI supports English and Traditional Chinese through the EN/中文 switch on `/portfolio`, `/projects`, and case pages. Each full case has a corresponding entry in the translation registry; the four promoted cases keep their English and Chinese content together in `lib/featured-product-cases.ts` and `lib/featured-engineering-cases.ts`, imported by `lib/projects.ts` and `lib/project-translations.ts`; additional projects use short bilingual fields in `lib/project-archive.ts` and detailed narratives in `lib/archive-project-narratives.ts`. `lib/water-map-case.ts` contains the report-backed water-map case. Shared narrative fields in `lib/project-narrative.ts` keep paragraph and source structure aligned. The personal website retains its original labels, and stored CMS content keeps the author's original language. Do not apply the portfolio language setting to the root homepage, Blog, or administrator interface.
 
 ## Adding a project
 
@@ -47,7 +47,7 @@ The archive shows short teasers and a few technology tags for scanning. Full con
 
 ## Additional projects
 
-`lib/project-archive.ts` contains concise bilingual records for further work. Include a specific contribution and project maturity; repository ownership alone is insufficient attribution. Omit public source links for private repositories and use an explicit source-status label. Keep repository/demo/evidence URLs real, and do not copy private assets into the public site. The archive is a separate browsing view; four of its entries also have full ten-section cases; its search covers names, descriptions and technologies in both languages.
+`lib/project-archive.ts` contains concise bilingual records for further work. Include a specific contribution and project maturity; repository ownership alone is insufficient attribution. Omit public source links for private repositories and use an explicit source-status label. Keep repository/demo/evidence URLs real, and do not copy private assets into the public site. The archive is a separate browsing view; five of its entries also have full ten-section cases; its search covers names, descriptions and technologies in both languages.
 
 ## Writing rules
 
@@ -59,7 +59,13 @@ The archive shows short teasers and a few technology tags for scanning. Full con
 6. Prefer links pinned to the inspected commit so future upstream changes cannot silently invalidate the narrative. Keep screenshots and excerpts attributed.
 7. Avoid unsupported expertise levels. Link capability summaries to a relevant case study or source repository.
 
+## Detailed archive pages
+
+All 20 built-in project documents have substantive detail pages: eight full ten-section cases and twelve six-section project explanations. `archiveProject()` in `lib/project-cms-seeds.ts` applies the corresponding `archiveProjectNarratives` entry. Keep context, functionality, implementation, individual contribution, limitations and lessons specific to each work. Private entries can have no public evidence URL; do not invent one. CMS publications and tombstones override the built-in starting documents.
+
 ## Images, diagrams and demos
+
+`lib/project-media.ts` registers actual public/repository captures and applies them to built-in content. Their source dates and revisions live in `public/projects/captures/SOURCE.md`. The first image is the cover; the native screenshot disclosure shows larger images with captions. A PDF evidence item whose label names a report automatically receives a report button.
 
 Place approved media under `public/projects/`, with descriptive names. Optimize image dimensions/filesize and record the source, capture date, and whether it is an actual UI screenshot or a diagram. The site uses `next/image` for the portrait and case images. External image hosting requires a deliberately scoped `remotePatterns` entry in `next.config.ts`; local media is simpler.
 

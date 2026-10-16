@@ -1,5 +1,32 @@
 # Verification record
 
+## 2026-10-16 — detailed descriptions and real screenshots
+
+Started from clean `main` at `d865d4d`. All 20 project pages now have detailed bilingual content: eight ten-section cases and twelve six-section project explanations. NTU Water Risk Map includes the original final report, presentation, route implementation and explicit team allocation. Nine actual screenshots across seven works are registered with source/date captions; report-backed pages have a direct report action.
+
+| Check | Result |
+| --- | --- |
+| `npm ci` | Passed, 564 packages. Reinstalled from the unchanged lockfile after cloud-synced duplicate/dataless dependency files blocked build reads. The prior dependency directory was preserved beside the workspace. |
+| `npm run lint` | Passed |
+| `npm run typecheck` | Passed |
+| `npm test` | **188 passed in 21 files** |
+| `npm run build` | **Passed with default Turbopack**, 51 eligible pages generated |
+| `npm run test:e2e` | **36 passed in 45.4 seconds** against the final standalone production build |
+| `git diff --check` | Passed |
+
+The expanded existing browser journeys read all 20 project detail pages in both languages, including native navigation without JavaScript. They verify report/source destinations, loaded screenshots and captions, disclosure behavior, section/architecture bounds and existing personal/portfolio behavior at 360/390/768/1440px. No external project executable, solver or authenticated public-demo flow was run. No remote deployment, CMS publication, database change or local owner publication edit was made.
+
+Inspected views (water-map captures from the final production build; the meal-page capture from local development with the same starting content):
+
+- [Water-map case, desktop](verification/water-map-detailed-desktop.png)
+- [Water-map explanation, mobile](verification/water-map-detailed-mobile.png)
+- [Expanded real water-map screenshots](verification/water-map-screenshots.png)
+- [Meal-project detail, desktop](verification/meal-project-detailed-desktop.png)
+
+Source and implementation notes: [PROJECT_NARRATIVES.md](PROJECT_NARRATIVES.md), [image provenance](../public/projects/captures/SOURCE.md). Historical measurements below describe earlier designs and do not score these new pages. The dependency audit still reports seven existing entries; this content work did not force dependency upgrades.
+
+## Historical verification — 2026-10-10
+
 Verified on **2026-10-10**, on the local `feat/engineering-portfolio` branch. The starting checkout was clean at `2df1aa3`. No remote branch, production deployment, Supabase account, database row, policy, or storage object was changed.
 
 ## Executed checks

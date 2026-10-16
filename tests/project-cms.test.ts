@@ -18,7 +18,7 @@ describe("project content validation", () => {
   it("preserves all 20 reviewed works and their six current homepage picks", () => {
     expect(seedProjectDocuments).toHaveLength(20);
     expect(new Set(seedProjectDocuments.map((entry) => entry.slug)).size).toBe(20);
-    expect(seedProjectDocuments.filter((entry) => entry.listed)).toHaveLength(7);
+    expect(seedProjectDocuments.filter((entry) => entry.listed)).toHaveLength(8);
     expect(seedProjectDocuments.filter((entry) => entry.archived)).toHaveLength(17);
     expect(seedProjectDocuments.filter((entry) => entry.en.featured)).toHaveLength(6);
     for (const entry of seedProjectDocuments) expect(() => parseProjectDocument(entry, true)).not.toThrow();

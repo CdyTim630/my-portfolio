@@ -35,6 +35,7 @@ export function ProjectVisual({
               height={1000}
               sizes="(max-width: 700px) 90vw, 560px"
               className="work-screenshot"
+              loading={large ? "eager" : "lazy"}
               unoptimized={!cover.src.startsWith("/")}
             />
         </div>
