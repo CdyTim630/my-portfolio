@@ -32,6 +32,10 @@ function AwardMedal({ rank }: { rank: number }) {
   </div>;
 }
 
+export function recognitionCount(publishedSlugs: string[]) {
+  return awards.filter(award => publishedSlugs.includes(award.slug)).length;
+}
+
 export default function ProjectRecognition({ locale, publishedSlugs }: { locale: PortfolioLocale; publishedSlugs: string[] }) {
   const language = locale === "zh-TW" ? "zh" : "en";
   const visible = awards.filter(award => publishedSlugs.includes(award.slug));
@@ -39,6 +43,7 @@ export default function ProjectRecognition({ locale, publishedSlugs }: { locale:
   return <section id="recognition" className={styles.section} aria-labelledby="recognition-title">
     <header className={styles.header}>
       <h2 id="recognition-title">{language === "zh" ? "獲獎紀錄" : "Recognition"}</h2>
+      <span className="section-rule" aria-hidden="true" />
       <p>{language === "zh" ? "團隊競賽成果" : "Team achievements"}</p>
     </header>
     <div className={styles.grid}>

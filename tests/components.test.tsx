@@ -88,23 +88,40 @@ describe("theme preference", () => {
   it("restores and changes the persisted theme", async () => {
     localStorage.setItem("home-theme-mode", "dark");
     localStorage.setItem("personal-theme-mode", "color");
-    render(<HomeThemeSwitcher><p>Portfolio content</p></HomeThemeSwitcher>);
-    const select = screen.getByRole("combobox", { name: "Color theme" });
-    await waitFor(() => expect(select).toHaveValue("dark"));
+    const { container } = render(<HomeThemeSwitcher><p>Portfolio content</p></HomeThemeSwitcher>);
+    await waitFor(() => expect(container.querySelector(".home-theme")).toHaveAttribute("data-mode", "dark"));
     expect(document.documentElement.style.colorScheme).toBe("dark");
-    fireEvent.change(select, { target: { value: "light" } });
+    fireEvent.click(screen.getByRole("button", { name: "Open color theme selector" }));
+    const choices = screen.getByRole("group", { name: "Color theme" });
+    expect(within(choices).getByRole("button", { name: "Dark" })).toHaveAttribute("aria-pressed", "true");
+    fireEvent.click(within(choices).getByRole("button", { name: "Light" }));
+    expect(container.querySelector(".home-theme")).toHaveAttribute("data-mode", "light");
     expect(localStorage.getItem("home-theme-mode")).toBe("light");
     expect(localStorage.getItem("personal-theme-mode")).toBe("color");
     expect(document.documentElement.style.colorScheme).toBe("light");
+    expect(screen.queryByRole("group", { name: "Color theme" })).not.toBeInTheDocument();
+  });
+
+  it("closes the theme choices on Escape and returns focus to the toggle", () => {
+    render(<HomeThemeSwitcher><p>Portfolio content</p></HomeThemeSwitcher>);
+    const toggle = screen.getByRole("button", { name: "Open color theme selector" });
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+    fireEvent.click(toggle);
+    const current = within(screen.getByRole("group", { name: "Color theme" })).getByRole("button", { name: "Light" });
+    expect(current).toHaveFocus();
+    fireEvent.keyDown(current, { key: "Escape" });
+    expect(screen.queryByRole("group", { name: "Color theme" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Open color theme selector" })).toHaveFocus();
   });
 
   it("remains usable when browser storage is unavailable", async () => {
     vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => { throw new Error("Storage disabled"); });
     vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => { throw new Error("Storage disabled"); });
-    render(<HomeThemeSwitcher><p>Portfolio content</p></HomeThemeSwitcher>);
-    const select = screen.getByRole("combobox", { name: "Color theme" });
-    await waitFor(() => expect(select).toHaveValue("light"));
-    fireEvent.change(select, { target: { value: "dark" } });
-    expect(select).toHaveValue("dark");
+    const { container } = render(<HomeThemeSwitcher><p>Portfolio content</p></HomeThemeSwitcher>);
+    await waitFor(() => expect(container.querySelector(".home-theme")).toHaveAttribute("data-mode", "light"));
+    fireEvent.click(screen.getByRole("button", { name: "Open color theme selector" }));
+    fireEvent.click(within(screen.getByRole("group", { name: "Color theme" })).getByRole("button", { name: "Dark" }));
+    expect(container.querySelector(".home-theme")).toHaveAttribute("data-mode", "dark");
   });
 });
+

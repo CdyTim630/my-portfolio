@@ -9,6 +9,7 @@ export default function SectionHeading({
   return (
     <div className="section-heading">
       <h2>{title}</h2>
+      <span className="section-rule" aria-hidden="true" />
       {children}
     </div>
   );

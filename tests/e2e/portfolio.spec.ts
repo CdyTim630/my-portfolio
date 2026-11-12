@@ -23,6 +23,15 @@ const projectGalleryMeta = Object.fromEntries(
   ]),
 );
 
+const themeLabels = { light: "Light", color: "Color", dark: "Dark" } as const;
+async function chooseTheme(page: Page, theme: keyof typeof themeLabels) {
+  await page.getByRole("button", { name: "Open color theme selector" }).click();
+  await page
+    .getByRole("group", { name: "Color theme" })
+    .getByRole("button", { name: themeLabels[theme] })
+    .click();
+}
+
 async function expectNoHorizontalOverflow(page: Page) {
   await page.evaluate(async () => {
     await document.fonts.ready;
@@ -352,9 +361,7 @@ test("personal website and portfolio preserve separate styles and theme preferen
     /\/portfolio(?:\?lang=en)?$/,
   );
   await expectNoHorizontalOverflow(page);
-  await page
-    .getByRole("combobox", { name: "Color theme" })
-    .selectOption("color");
+  await chooseTheme(page, "color");
   await expect(page.locator(".home-theme")).toHaveAttribute(
     "data-mode",
     "color",
@@ -529,17 +536,13 @@ test("project filters and every published case study are usable", async ({
     await page.goto(`/projects/${project.slug}?lang=en`);
     await expectCaseStudyContent(page, project, "en");
     await expectNoHorizontalOverflow(page);
-    await page
-      .getByRole("combobox", { name: "Color theme" })
-      .selectOption("dark");
+    await chooseTheme(page, "dark");
     await expect(page.locator(".home-theme")).toHaveAttribute(
       "data-mode",
       "dark",
     );
     await expectNoHorizontalOverflow(page);
-    await page
-      .getByRole("combobox", { name: "Color theme" })
-      .selectOption("light");
+    await chooseTheme(page, "light");
   }
   await page.screenshot({
     path: testInfo.outputPath("case-study.png"),
@@ -569,17 +572,19 @@ test("keyboard navigation and persisted dark mode work", async ({
       page.getByRole("navigation", { name: "Mobile navigation" }),
     ).toHaveCount(0);
   }
-  await page
-    .getByRole("combobox", { name: "Color theme" })
-    .selectOption("dark");
+  await chooseTheme(page, "dark");
   await page.reload();
   await expect(page.locator(".home-theme")).toHaveAttribute(
     "data-mode",
     "dark",
   );
-  await expect(page.getByRole("combobox", { name: "Color theme" })).toHaveValue(
-    "dark",
-  );
+  await page.getByRole("button", { name: "Open color theme selector" }).click();
+  await expect(
+    page
+      .getByRole("group", { name: "Color theme" })
+      .getByRole("button", { name: "Dark" }),
+  ).toHaveAttribute("aria-pressed", "true");
+  await page.keyboard.press("Escape");
   await expectNoHorizontalOverflow(page);
   await page.screenshot({
     path: testInfo.outputPath("dark-portfolio.png"),

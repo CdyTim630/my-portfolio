@@ -5,7 +5,7 @@ import HomeThemeSwitcher from "@/components/HomeThemeSwitcher";
 import ProjectCard from "@/components/portfolio/ProjectCard";
 import FeaturedArchiveCard from "@/components/portfolio/FeaturedArchiveCard";
 import SectionHeading from "@/components/portfolio/SectionHeading";
-import ProjectRecognition from "@/components/portfolio/ProjectRecognition";
+import ProjectRecognition, { recognitionCount } from "@/components/portfolio/ProjectRecognition";
 import CollectionFolderArtwork from "@/components/portfolio/CollectionFolderArtwork";
 import SiteFooter from "@/components/portfolio/SiteFooter";
 import Icon from "@/components/portfolio/Icon";
@@ -76,6 +76,15 @@ export default async function PortfolioPage({
   const zh = locale === "zh-TW";
   const t = (en: string, chinese: string) => (zh ? chinese : en);
   const selectedProjects = documents.filter((document) => document.en.featured);
+  const publishedSlugs = documents.map((document) => document.slug);
+  const awardCount = recognitionCount(publishedSlugs);
+  const heroStats = [
+    { value: documents.length, label: t("Projects", "件作品"), href: "/projects" },
+    ...(awardCount
+      ? [{ value: awardCount, label: t("Awards", "項競賽獲獎"), href: "/portfolio#recognition" }]
+      : []),
+    { value: projectCollections.length, label: t("Fields", "個領域"), href: "/portfolio#collections" },
+  ];
   const experiences = [
     {
       period: "2025.09 —",
@@ -122,7 +131,11 @@ export default async function PortfolioPage({
           <section className="portfolio-hero" aria-labelledby="hero-title">
             <div className="hero-copy">
               <p className="availability-pill">
-                <span /> {t("OPEN TO INTERNSHIPS", "尋找工程實習機會")}
+                <span className="availability-dot" aria-hidden="true">
+                  <span />
+                  <span />
+                </span>
+                {t("Open to internships", "尋找工程實習機會")}
               </p>
               <p className="hero-identity">
                 {t("Ding-Yuan Chen", "陳鼎元")} <span> / </span>{" "}
@@ -131,7 +144,7 @@ export default async function PortfolioPage({
               <h1 id="hero-title">
                 {t("Curious mind.", "研究問題，")}
                 <br />
-                <span className="gradient-ink">
+                <span className="gradient-ink harmony-gradient-text">
                   {t("Hands-on builder.", "動手實作。")}
                 </span>
               </h1>
@@ -146,7 +159,7 @@ export default async function PortfolioPage({
                   className="button-primary"
                   href={portfolioHref("/projects", locale)}
                 >
-                  {t("View projects", "查看作品")} <Icon name="external" />
+                  {t("View projects", "查看作品")} <Icon />
                 </Link>
                 <a
                   className="button-secondary"
@@ -157,6 +170,16 @@ export default async function PortfolioPage({
                   {t("Download resume", "查看履歷")}
                 </a>
               </div>
+              <ul className="hero-stats" aria-label={t("At a glance", "作品概覽")}>
+                {heroStats.map((stat) => (
+                  <li key={stat.href}>
+                    <Link href={portfolioHref(stat.href, locale)}>
+                      <strong>{stat.value}</strong>
+                      <span>{stat.label}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
             </div>
             <div className="hero-studio">
               <figure className="studio-portrait">
@@ -206,7 +229,7 @@ export default async function PortfolioPage({
               ))}
             </div>
           </section>
-          <ProjectRecognition locale={locale} publishedSlugs={documents.map(document => document.slug)} />
+          <ProjectRecognition locale={locale} publishedSlugs={publishedSlugs} />
           <section
             className="portfolio-section collection-section"
             id="collections"

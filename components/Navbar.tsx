@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import LanguageSwitcher from "@/components/portfolio/LanguageSwitcher";
 import { portfolioHref, type PortfolioLocale } from "@/lib/portfolio-locale";
 import Icon from "@/components/portfolio/Icon";
@@ -29,9 +29,24 @@ export default function Navbar({
   const [open, setOpen] = useState(false);
   const toggle = useRef<HTMLButtonElement>(null);
   const pathname = usePathname();
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    let frame = 0;
+    function update() {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => setScrolled(window.scrollY > 16));
+    }
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", update);
+    };
+  }, []);
   return (
     <header
       className="site-header"
+      data-scrolled={scrolled}
       onKeyDown={(event) => {
         if (event.key === "Escape") {
           setOpen(false);
@@ -44,8 +59,8 @@ export default function Navbar({
         className="wordmark"
         title={zh ? "作品集首頁" : "Portfolio home"}
       >
-        <span className="wordmark-icon">
-          Tim<span>.</span>
+        <span className="wordmark-avatar" aria-hidden="true">
+          Tim
         </span>
         <span className="wordmark-name">Ding-Yuan Chen</span>
       </Link>
