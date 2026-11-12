@@ -1,5 +1,6 @@
 import PersonalNavbar from "@/components/personal/PersonalNavbar";
 import Image from "next/image";
+import Icon from "@/components/portfolio/Icon";
 import Link from "next/link";
 import { getPublicContent } from "@/lib/public-content";
 import { calculateReadTime } from "@/lib/reading-time";
@@ -243,17 +244,17 @@ export default async function PersonalHome() {
               <Reveal variant="right" delay={120}>
                 <div className="flex flex-col gap-3 justify-center">
                   {[
-                    { skill: "Web Development", icon: "</>" },
-                    { skill: "System Administration", icon: "⚙" },
-                    { skill: "Coding", icon: "{ }" },
+                    { skill: "Web Development", icon: "code" as const },
+                    { skill: "System Administration", icon: "gear" as const },
+                    { skill: "Coding", icon: "braces" as const },
                   ].map((s, i) => (
                     <div
                       key={s.skill}
                       className="lift-card group relative overflow-hidden px-6 py-5 rounded-xl bg-[var(--home-surface)] border border-[var(--home-border)] backdrop-blur-sm text-[var(--home-text-strong)] font-semibold flex items-center gap-3 cursor-default"
                       style={{ animationDelay: `${i * 80}ms` }}
                     >
-                      <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--home-surface-muted)] text-[var(--home-primary)] font-mono text-sm">
-                        {s.icon}
+                      <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--home-surface-muted)] text-[var(--home-primary)]">
+                        <Icon name={s.icon} className="h-[18px] w-[18px]" />
                       </span>
                       <span>{s.skill}</span>
                       <span
