@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import CaseTocSpy from "@/components/portfolio/CaseTocSpy";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -257,6 +258,7 @@ export default async function ProjectPage({ params, searchParams }: Props) {
           )}
           <div className="case-layout">
             <aside className="case-toc">
+              <CaseTocSpy />
               <nav aria-label={zh ? "專案目錄" : "Project contents"}>
                 <p className="eyebrow">{zh ? "內容導覽" : "IN THIS PROJECT"}</p>
                 {project.sections.map((section, index) => (

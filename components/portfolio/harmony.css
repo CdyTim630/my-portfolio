@@ -178,9 +178,21 @@
   100% { transform: translate3d(10%, -12%, 0) scale(1.01); opacity: 0.5; }
 }
 
-/* ---------- Typography ---------- */
-.portfolio-theme.site-harmony :is(h1, h2, h3, h4) {
+/* ---------- Typography (same faces and fallbacks as the home page) ---------- */
+.portfolio-theme.site-harmony[data-mode] {
+  --harmony-system-fallback: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  /* The home page has no monospace labels; numbers, eyebrows and the TOC use the body face. */
+  --font-geist-mono: var(--font-portfolio-body), var(--harmony-system-fallback);
+  font-family: var(--font-portfolio-body), var(--harmony-system-fallback);
+}
+.portfolio-theme.site-harmony :is(h1, h2, h3, h4, h5, h6) {
   color: var(--home-text-strong);
+  font-family: var(--font-portfolio-heading), var(--harmony-system-fallback);
+}
+/* Real code keeps a monospace face. */
+.portfolio-theme.site-harmony :is(pre, code, kbd, samp),
+.portfolio-theme.site-harmony .code-example pre {
+  font-family: "SFMono-Regular", ui-monospace, Menlo, Consolas, "Liberation Mono", monospace;
 }
 .portfolio-theme.site-harmony .site-container {
   width: min(1152px, calc(100% - 48px));
@@ -631,17 +643,6 @@
   transform: translateX(4px);
 }
 
-/* Collection folders */
-.portfolio-theme.site-harmony .collection-folder {
-  transition: transform 350ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-.portfolio-theme.site-harmony .collection-folder:hover {
-  transform: translateY(-6px);
-}
-.portfolio-theme.site-harmony .collection-folder:hover h3 {
-  color: var(--home-primary);
-}
-
 /* ---------- Beyond the projects: home-style timeline ---------- */
 .portfolio-theme.site-harmony .glance-intro p {
   color: var(--home-text);
@@ -892,7 +893,7 @@
 /* ---------- Scroll-driven reveal (no JS; skipped where unsupported) ---------- */
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) and (min-width: 761px) {
-    .portfolio-theme.site-harmony :is(.portfolio-section, #recognition, .contact-section, .projects-grid > *, .collection-folder, .glance-timeline article) {
+    .portfolio-theme.site-harmony :is(.portfolio-section, #recognition, .contact-section, .projects-grid > *, .glance-timeline article) {
       animation: harmony-reveal linear both;
       animation-timeline: view();
       animation-range: entry 0% entry 35%;

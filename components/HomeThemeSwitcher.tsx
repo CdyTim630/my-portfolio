@@ -5,15 +5,23 @@ import ScrollProgress from "@/components/ScrollProgress";
 import "@/components/portfolio/portfolio.css";
 import "@/components/portfolio/projects.css";
 import "@/components/portfolio/harmony.css";
+import "@/components/portfolio/harmony-pages.css";
+// Same font files as the personal home page (components/personal/), so both
+// sites render identically and share the browser's font cache.
 const portfolioHeading = localFont({
   src: [
     {
-      path: "../public/fonts/portfolio/archivo-bold-latin.woff2",
+      path: "../public/fonts/personal/archivo-regular.woff2",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/personal/archivo-bold.woff2",
       weight: "700",
       style: "normal",
     },
     {
-      path: "../public/fonts/portfolio/archivo-black-latin.woff2",
+      path: "../public/fonts/personal/archivo-black.woff2",
       weight: "900",
       style: "normal",
     },
@@ -23,7 +31,7 @@ const portfolioHeading = localFont({
   preload: false,
 });
 const portfolioBody = localFont({
-  src: "../public/fonts/portfolio/space-grotesk-variable-latin.woff2",
+  src: "../public/fonts/personal/space-grotesk-variable.woff2",
   weight: "300 700",
   style: "normal",
   variable: "--font-portfolio-body",

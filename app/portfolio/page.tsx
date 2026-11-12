@@ -6,7 +6,7 @@ import ProjectCard from "@/components/portfolio/ProjectCard";
 import FeaturedArchiveCard from "@/components/portfolio/FeaturedArchiveCard";
 import SectionHeading from "@/components/portfolio/SectionHeading";
 import ProjectRecognition, { recognitionCount } from "@/components/portfolio/ProjectRecognition";
-import CollectionFolderArtwork from "@/components/portfolio/CollectionFolderArtwork";
+import FieldExplorer from "@/components/portfolio/FieldExplorer";
 import SiteFooter from "@/components/portfolio/SiteFooter";
 import Icon from "@/components/portfolio/Icon";
 import ContactIcon from "@/components/portfolio/ContactIcon";
@@ -244,32 +244,18 @@ export default async function PortfolioPage({
                 {t("Explore all", "查看全部")} <Icon />
               </Link>
             </SectionHeading>
-            <div className="collection-folders">
-              {projectCollections.map((collection) => (
-                <Link
-                  className="collection-folder"
-                  data-category={collection.id}
-                  key={collection.id}
-                  href={portfolioHref(
-                    `/projects#collection-${collection.id}`,
-                    locale,
-                  )}
-                >
-                  <CollectionFolderArtwork category={collection.id} />
-                  <div className="folder-label">
-                    <h3>{collection.label[zh ? "zh" : "en"]}</h3>
-                    <span className="folder-count">
-                      {
-                        documents.filter(
-                          (project) => project.archived && project.collection === collection.id,
-                        ).length
-                      }{" "}
-                      {t("projects", "件作品")}
-                    </span>
-                  </div>
-                </Link>
-              ))}
-            </div>
+            <FieldExplorer
+              zh={zh}
+              fields={projectCollections.map((collection) => ({
+                id: collection.id,
+                href: portfolioHref(`/projects#collection-${collection.id}`, locale),
+                label: collection.label[zh ? "zh" : "en"],
+                note: collection.note[zh ? "zh" : "en"],
+                projects: documents
+                  .filter((project) => project.archived && project.collection === collection.id)
+                  .map((project) => projectForLocale(project, locale).title),
+              }))}
+            />
           </section>
           <section className="portfolio-section glance-section" id="about">
             <SectionHeading

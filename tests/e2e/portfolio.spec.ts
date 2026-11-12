@@ -282,12 +282,12 @@ test("portfolio landing page presents engineering work and working project navig
   await expect(
     page.getByRole("link", { name: "b13705020@ntu.edu.tw" }),
   ).toHaveAttribute("href", "mailto:b13705020@ntu.edu.tw");
-  await expect(page.locator(".collection-folder")).toHaveCount(
+  await expect(page.locator("#collections a[data-category]")).toHaveCount(
     projectCollections.length,
   );
   for (const collection of projectCollections) {
     await expect(
-      page.locator(`.collection-folder[data-category="${collection.id}"]`),
+      page.locator(`#collections a[data-category="${collection.id}"]`),
     ).toHaveAttribute("href", `/projects?lang=en#collection-${collection.id}`);
   }
   await expectNoHorizontalOverflow(page);
